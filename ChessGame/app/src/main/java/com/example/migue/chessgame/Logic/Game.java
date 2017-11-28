@@ -1,5 +1,7 @@
 package com.example.migue.chessgame.Logic;
 
+import android.util.Log;
+
 import com.example.migue.chessgame.Peaces.*;
 
 import java.io.Serializable;
@@ -15,7 +17,7 @@ public class Game implements Serializable {
     // Istate state;
 
     public Game(boolean multiplayer) {
-        isWhiteTurn=true;
+        isWhiteTurn=false;
         this.multiplayer = multiplayer;
         table = new Table();
         //state = new IBeginning(table);
@@ -29,6 +31,8 @@ public class Game implements Serializable {
 
             if(getPeace(sl, sn).action(table, sl,sn,l,n)){ //se a accão devolver true
 
+                table.setPeace(getPeace(sl, sn), l, n);
+                table.setPeace(new Empty(false), sl, sn);
                 return true;
             }
 

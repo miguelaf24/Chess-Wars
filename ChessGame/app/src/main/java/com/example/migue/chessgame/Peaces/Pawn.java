@@ -1,5 +1,7 @@
 package com.example.migue.chessgame.Peaces;
 
+import android.util.Log;
+
 import com.example.migue.chessgame.Logic.Table;
 
 /**
@@ -7,12 +9,32 @@ import com.example.migue.chessgame.Logic.Table;
  */
 
 public class Pawn extends Peace {
+    boolean firstPlay;
     public Pawn(boolean isWhite) {
-        super(isWhite);
+        super(isWhite);firstPlay=true;
     }
 
     @Override
-    public boolean action(Table table, int sl, int ln, int s, int l) {
+    public boolean action(Table table, int sl, int sn, int l, int n) {
+
+        if(table.getPeace(l,n) instanceof Empty) {
+            if (isWhite && ( n- sn == 1  ||(firstPlay && n - sn == 2)) && l==sl ) {
+                if (firstPlay) firstPlay = false;
+                return true;
+            } else if (!isWhite && (n - sn == -1 || (firstPlay && n - sn == -2)) && l==sl) {
+                if (firstPlay) firstPlay = false;
+                return true;
+            }
+        } else{
+            if(isWhite && ( ((l==sl+1) || l==sl-1) && (n==sn+1)) && table.getPeace(l,n).isWhite()!=isWhite){
+                return true;
+            }
+            if(!isWhite && ( ((l==sl+1) || l==sl-1) && (n==sn-1)) && table.getPeace(l,n).isWhite()!=isWhite){
+                return true;
+            }
+        }
+
+
         return false;
     }
 }

@@ -3,6 +3,7 @@ package com.example.migue.chessgame;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -129,6 +130,7 @@ public class GameActivity extends Activity {
                             if(game.getPeace(l,n) instanceof Empty || game.getPeace(l,n).isWhite()!=game.isWhiteTurn()){
                                 view.setBackgroundColor(Color.RED);
                                 if(game.doIt(sl,sn,l,n)){
+                                    Log.d("d", "entrou");
                                     refreshTable();
                                 }
                                 else{
@@ -198,6 +200,10 @@ public class GameActivity extends Activity {
                     else
                         homes[i][j].setImageResource(R.drawable.queen_b);
                 }
+                if(game.getPeace(i,j) instanceof Empty){
+                    homes[i][j].setImageResource(android.R.color.transparent);
+                }
+
             }
         }
     }
