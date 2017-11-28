@@ -1,6 +1,6 @@
 package com.example.migue.chessgame.Logic;
 
-import com.example.migue.chessgame.Peaces.Peace;
+import com.example.migue.chessgame.Peaces.*;
 
 import java.io.Serializable;
 
@@ -25,8 +25,14 @@ public class Game implements Serializable {
         return isWhiteTurn;
     }
 
-    public boolean doIt(int sl, int sn, int l, int n){
+    public boolean doIt(int sl, int sn, int l, int n) {
+
+            if(getPeace(sl, sn).action(table, sl,sn,l,n)){ //se a accão devolver true
+
+                return true;
+            }
+
         return false;
-    };
+    }
     public Peace getPeace(int i, int j){return table.getPeace(i, j);}
 }
