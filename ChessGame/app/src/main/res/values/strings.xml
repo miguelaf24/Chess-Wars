@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ChessGame</string>
+    <string name="play">Jogar</string>
+    <string name="title">Chess Wars</string>
+</resources>
