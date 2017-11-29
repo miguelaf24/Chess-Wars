@@ -9,12 +9,12 @@ import com.example.migue.chessgame.Logic.Table;
  */
 
 public class Tower extends Peace {
-    public Tower(boolean isWhite) {
-        super(isWhite);
+    public Tower(boolean isWhite, int l, int n) {
+        super(isWhite,l,n);
     }
 
     @Override
-    public boolean action(Table table, int sl, int sn, int l, int n)
+    public boolean action(Table table ,int l, int n)
     {
     int auxl=0, auxn=0, auxfor=0;
         if(table.getPeace(l,n) instanceof Empty || table.getPeace(l,n).isWhite()!=isWhite){

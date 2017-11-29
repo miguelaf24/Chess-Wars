@@ -7,12 +7,12 @@ import com.example.migue.chessgame.Logic.Table;
  */
 
 public class Bishop extends Peace {
-    public Bishop(boolean isWhite) {
-        super(isWhite);
+    public Bishop(boolean isWhite, int l, int n) {
+        super(isWhite,l,n);
     }
 
     @Override
-    public boolean action(Table table, int sl, int sn, int l, int n) {
+    public boolean action(Table table ,int l, int n) {
         int auxl, auxn;
         if(table.getPeace(l,n) instanceof Empty || table.getPeace(l,n).isWhite()!=isWhite)
             if(l-sl == n-sn || l-sl == sn-n){//verifica isDiagonal

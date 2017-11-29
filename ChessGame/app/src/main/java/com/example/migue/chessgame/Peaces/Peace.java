@@ -10,14 +10,17 @@ import java.io.Serializable;
 
 public abstract class Peace implements Serializable {
     boolean isWhite;
+    int sl, sn;
 
     public boolean isWhite() {
         return isWhite;
     }
 
-    public Peace(boolean isWhite) {
-        this.isWhite = isWhite;
+    public Peace(boolean isWhite, int l, int n) {
+        this.isWhite = isWhite; sl=l; sn=n;
     }
 
-    public abstract boolean action(Table table, int sl, int ln, int s, int l);
+    public abstract boolean action(Table table, int l, int n);
+
+    public void setCoord(int i, int j){sl=i;sn=j;}
 }

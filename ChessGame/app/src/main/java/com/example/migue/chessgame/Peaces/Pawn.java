@@ -10,12 +10,13 @@ import com.example.migue.chessgame.Logic.Table;
 
 public class Pawn extends Peace {
     boolean firstPlay;
-    public Pawn(boolean isWhite) {
-        super(isWhite);firstPlay=true;
+    public Pawn(boolean isWhite, int l, int n) {
+        super(isWhite,l,n);
     }
 
+
     @Override
-    public boolean action(Table table, int sl, int sn, int l, int n) {
+    public boolean action(Table table ,int l, int n) {
 
         if(table.getPeace(l,n) instanceof Empty) {
             if (isWhite && ( n- sn == 1  ||(firstPlay && n - sn == 2)) && l==sl ) {

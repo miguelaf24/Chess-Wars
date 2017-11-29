@@ -8,11 +8,11 @@ import com.example.migue.chessgame.Logic.Table;
 
 public class Empty extends Peace {
     public Empty(boolean isWhite) {
-        super(isWhite);
+        super(isWhite, 0, 0);
     }
 
     @Override
-    public boolean action(Table table, int sl, int ln, int s, int l) {
+    public boolean action(Table table ,int l, int n) {
         return false;
     }
 

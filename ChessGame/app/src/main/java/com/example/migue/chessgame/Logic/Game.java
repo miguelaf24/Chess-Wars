@@ -29,8 +29,7 @@ public class Game implements Serializable {
 
     public boolean doIt(int sl, int sn, int l, int n) {
 
-            if(getPeace(sl, sn).action(table, sl,sn,l,n)){ //se a accão devolver true
-
+            if(getPeace(sl, sn).action(table,l,n)){ //se a accão devolver true
                 table.setPeace(getPeace(sl, sn), l, n);
                 table.setPeace(new Empty(false), sl, sn);
                 return true;
