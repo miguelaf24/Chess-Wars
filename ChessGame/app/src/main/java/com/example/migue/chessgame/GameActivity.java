@@ -130,7 +130,6 @@ public class GameActivity extends Activity {
                             if(game.getPeace(l,n) instanceof Empty || game.getPeace(l,n).isWhite()!=game.isWhiteTurn()){
                                 view.setBackgroundColor(Color.RED);
                                 if(game.doIt(sl,sn,l,n)){
-                                    Log.d("d", "entrou");
                                     refreshTable();
                                 }
                                 else{
