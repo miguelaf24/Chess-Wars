@@ -4,6 +4,7 @@ import com.example.migue.chessgame.Peaces.Bishop;
 import com.example.migue.chessgame.Peaces.Empty;
 import com.example.migue.chessgame.Peaces.Horse;
 import com.example.migue.chessgame.Peaces.King;
+import com.example.migue.chessgame.Peaces.Listas;
 import com.example.migue.chessgame.Peaces.Pawn;
 import com.example.migue.chessgame.Peaces.Peace;
 import com.example.migue.chessgame.Peaces.Queen;
@@ -18,32 +19,44 @@ import java.io.Serializable;
 public class Table implements Serializable{
 
     private Peace[][] coord;
+    private Listas lista;
     //private char[][] peaces;
 
     public Table() {
         //peaces = new char[8][8];
         coord = new Peace[8][8];
+        lista= new Listas();
         startTable();
+
     }
 
     public void startTable(){
 
         //Tower
         coord[0][0] = new Tower(true, 0,0);
+
         coord[7][0] = new Tower(true,7,0);
+
         coord[0][7] = new Tower(false,0,7);
+
         coord[7][7] = new Tower(false,7,7);
 
         //Bishop
         coord[2][0] = new Bishop(true,2,0);
+
         coord[5][0] = new Bishop(true,5,0);
+
         coord[2][7] = new Bishop(false,2,7);
+
         coord[5][7] = new Bishop(false,5,7);
 
         //Horses
         coord[1][0] = new Horse(true,1,0);
+
         coord[6][0] = new Horse(true,6,0);
+
         coord[1][7] = new Horse(false,1,7);
+
         coord[6][7] = new Horse(false,6,7);
 
         //King and Queen
@@ -56,6 +69,7 @@ public class Table implements Serializable{
         for(int j = 0; j < 8 ; j++){
             coord[j][1] = new Pawn(true,j,1);
             coord[j][6] = new Pawn(false,j,6);
+
         }
 
         //Null
@@ -64,7 +78,28 @@ public class Table implements Serializable{
                 coord[j][i] = new Empty(false);
             }
         }
+        for(int j = 0; j < 8 ; j++){
+            lista.addWhite(coord[j][1]);
+            lista.addBlack(coord[j][6]);
+        }
+        lista.addWhite(coord[3][0]);
+        lista.addWhite(coord[4][0]);
+        lista.addBlack(coord[3][7]);
+        lista.addBlack(coord[4][7]);
+        lista.addBlack(coord[1][7]);
+        lista.addBlack(coord[6][7]);
+        lista.addWhite(coord[0][0]);
+        lista.addWhite(coord[7][0]);
+        lista.addBlack(coord[0][7]);
+        lista.addBlack(coord[7][7]);
+        lista.addWhite(coord[2][0]);
+        lista.addWhite(coord[5][0]);
+        lista.addBlack(coord[2][7]);
+        lista.addBlack(coord[5][7]);
+        lista.addWhite(coord[1][0]);
+        lista.addWhite(coord[6][0]);
     }
+    public Listas getlista(){return lista;}
 
     public Peace getPeace(int i, int j){return coord[i][j];}
 

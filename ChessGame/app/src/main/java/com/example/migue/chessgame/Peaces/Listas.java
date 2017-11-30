@@ -1,5 +1,6 @@
 package com.example.migue.chessgame.Peaces;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,19 +9,55 @@ import java.util.List;
 
 public class Listas {
 
-    List<Peace> white;
-    List<Peace> black;
+    ArrayList<Peace> white;
+    ArrayList<Peace> black;
 
-    void addWhite(Peace c){
+    public Listas(){
+        white = new ArrayList<>();
+        black = new ArrayList<>();
+    }
+    public void addWhite(Peace c){
         white.add(c);
     }
-    void addBlack(Peace c){
+    public void addBlack(Peace c){
         black.add(c);
     }
-    void rmvWhite(Peace c){
+    public void rmvWhite(Peace c){
         white.remove(c);
     }
-    void rmvBlack(Peace c){
+    public void rmvBlack(Peace c){
         black.remove(c);
+    }
+    public Peace getWhite(int l, int n){
+        for(int i = 0 ; i<white.size(); i++){
+            if(white.get(i).getL()==l && white.get(i).getN()==n){
+                return white.get(i);
+            }
+        }
+        return new Empty(false);
+    }
+
+    public Peace getKing(boolean isWhite){
+     if (isWhite) {
+         for (int i = 0; i < white.size(); i++) {
+             if (white.get(i) instanceof King) {
+                 return white.get(i);
+             }
+         }
+     }else
+         for(int i = 0 ; i<black.size(); i++){
+             if(black.get(i) instanceof King){
+                 return black.get(i);
+             }
+         }
+         return null;
+    }
+    public Peace getBlack(int l, int n){
+        for(int i = 0 ; i<white.size(); i++){
+            if(white.get(i).getL()==l && white.get(i).getN()==n){
+                return black.get(i);
+            }
+        }
+        return new Empty(false);
     }
 }

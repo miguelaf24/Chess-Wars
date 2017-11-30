@@ -23,4 +23,11 @@ public abstract class Peace implements Serializable {
     public abstract boolean action(Table table, int l, int n);
 
     public void setCoord(int i, int j){sl=i;sn=j;}
+
+    public int getL(){
+        return sl;
+    }
+    public int getN(){
+        return sn;
+    }
 }

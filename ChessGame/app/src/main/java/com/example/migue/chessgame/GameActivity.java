@@ -116,6 +116,10 @@ public class GameActivity extends Activity {
                         //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
 
                         if(sl < 0 || sn < 0){//Se a peça não estiver selecionada
+
+                            //chama o isChecked
+                            if(game.IsKCheck())
+                                Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
                             if((!(game.getPeace(l,n) instanceof Empty)) && game.getPeace(l,n).isWhite()==game.isWhiteTurn()){
                                 view.setBackgroundColor(Color.BLUE);
                                 sl = l;
