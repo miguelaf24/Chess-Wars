@@ -103,5 +103,26 @@ public class Table implements Serializable{
 
     public Peace getPeace(int i, int j){return coord[i][j];}
 
-    public void setPeace(Peace c, int i, int j){coord[i][j] = c; c.setCoord(i,j);}
+    public void setPeace(int l, int n, int i, int j){
+
+        if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
+            coord[i][j]=new Empty(false);
+            return;
+        }
+        Peace c=getPeace(l,n);
+        coord[i][j] =c; //actualiza as coordenadas da tabela
+        c.setCoord(i,j); //actualiza info da peça
+
+        //actualiza as listas de peças existentes
+        if(c.isWhite())
+            lista.getWhite(l,n).setCoord(i,j);
+        else
+            lista.getBlack(l,n).setCoord(i,j);
+}
+
+    public void setThisPeace(Peace p, int l, int n) {
+        lista.addWhite(p);
+        coord[l][n] =p; //actualiza as coordenadas da tabela
+
+    }
 }

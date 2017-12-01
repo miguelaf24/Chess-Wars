@@ -11,8 +11,7 @@ import com.example.migue.chessgame.Logic.Table;
 public class Pawn extends Peace {
     boolean firstPlay;
     public Pawn(boolean isWhite, int l, int n) {
-        super(isWhite,l,n);
-    }
+        super(isWhite,l,n); firstPlay=true;}
 
 
     @Override
