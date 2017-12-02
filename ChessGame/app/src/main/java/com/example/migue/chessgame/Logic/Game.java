@@ -73,6 +73,70 @@ public class Game implements Serializable {
         return true;
     }
 
+    public void GameOver(){
+
+        if (isWhiteTurn){
+
+            for (Peace p:table.getlista().white)
+            {
+
+            }
+
+            }else{
+
+            }
+    }
+
+    public boolean trychangePeace(int sl, int sn, int l, int n){
+
+        if(l<0||l>7||n<0||n>7)return false;
+        Peace p = table.getPeace(l,n);
+        table.setPeace(sl, sn, l, n);
+        table.setPeace(-1, -1, sl, sn);
+        if(IsKCheck()){
+            table.setPeace(l, n, sl, sn);
+            table.setThisPeace(p, l, n);
+            return false;
+        }
+        table.setPeace(l, n, sl, sn);
+        table.setThisPeace(p, l, n);
+        return true;
+    }
+
+    public boolean SaveMyKing(int l, int n){
+
+        if(table.getPeace(l,n) instanceof King){
+            if(trychangePeace(l,n,l+1,n))return true;
+            if(trychangePeace(l,n,l+1,n+1))return true;
+            if(trychangePeace(l,n,l+1,n-1))return true;
+            if(trychangePeace(l,n,l,n-1))return true;
+            if(trychangePeace(l,n,l,n+1))return true;
+            if(trychangePeace(l,n,l-1,n))return true;
+            if(trychangePeace(l,n,l-1,n+1))return true;
+            if(trychangePeace(l,n,l-1,n-1))return true;
+        } else if(table.getPeace(l,n) instanceof Pawn){
+            if(table.getPeace(l,n).isWhite()){
+                if(trychangePeace(l,n,l+1,n+1)&& !(table.getPeace(l+1,n+1) instanceof  Empty) && table.getPeace(l+1,n+1).isWhite()!=isWhiteTurn)return true;
+                if(trychangePeace(l,n,l,n+1))return true;
+                if(trychangePeace(l,n,l-1,n+1)&& !(table.getPeace(l-1,n+1) instanceof  Empty) && table.getPeace(l-1,n+1).isWhite()!=isWhiteTurn)return true;
+            }
+            else{
+                if(trychangePeace(l,n,l+1,n-1)&& !(table.getPeace(l+1,n-1) instanceof  Empty) && table.getPeace(l+1,n-1).isWhite()!=isWhiteTurn)return true;
+                if(trychangePeace(l,n,l,n-1))return true;
+                if(trychangePeace(l,n,l-1,n-1)&& !(table.getPeace(l-1,n-1) instanceof  Empty) && table.getPeace(l-1,n-1).isWhite()!=isWhiteTurn)return true;
+            }
+        }else if (table.getPeace(l,n) instanceof Bishop){
+
+        }else if (table.getPeace(l,n) instanceof Horse){
+
+        } else if (table.getPeace(l,n) instanceof Queen){
+
+        } else if (table.getPeace(l,n) instanceof Tower){
+
+        }
+        return false;
+    }
+
     public boolean isKingCheck(int l, int n) {
         int sl, sn, p;
         sl = l;

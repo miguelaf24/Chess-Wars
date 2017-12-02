@@ -9,8 +9,8 @@ import java.util.List;
 
 public class Listas {
 
-    ArrayList<Peace> white;
-    ArrayList<Peace> black;
+    public ArrayList<Peace> white;
+    public ArrayList<Peace> black;
 
     public Listas(){
         white = new ArrayList<>();
@@ -28,6 +28,7 @@ public class Listas {
     public void rmvBlack(Peace c){
         black.remove(c);
     }
+
     public Peace getWhite(int l, int n){
         for(int i = 0 ; i<white.size(); i++){
             if(white.get(i).getL()==l && white.get(i).getN()==n){
