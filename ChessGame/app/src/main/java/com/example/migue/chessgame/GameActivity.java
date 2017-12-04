@@ -162,9 +162,9 @@ public class GameActivity extends Activity {
     void refreshTable(){
         for(int i = 0; i < 8 ; i++){
             for(int j = 0; j < 8 ; j++){
-                if(i%2==0 && j%2!=0)homes[i][j].setBackgroundColor(Color.WHITE);
-                else if((i%2!=0 && j%2==0))homes[i][j].setBackgroundColor(Color.WHITE);
-                else homes[i][j].setBackgroundColor(Color.BLACK);
+                if(i%2==0 && j%2!=0)homes[i][j].setBackgroundColor(Color.parseColor("#2E2EFE"));
+                else if((i%2!=0 && j%2==0))homes[i][j].setBackgroundColor(Color.parseColor("#2E2EFE"));
+                else homes[i][j].setBackgroundColor(Color.parseColor("#DAA520"));
 
 
                 if(game.getPeace(i,j) instanceof Tower){
