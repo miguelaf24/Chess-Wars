@@ -85,4 +85,5 @@ public class Queen extends Peace {
         return false;
     }
 
+    public String getType(){return "Queen";}
 }

@@ -15,5 +15,6 @@ public class Empty extends Peace {
     public boolean action(Table table ,int l, int n) {
         return false;
     }
+    public String getType(){return "Empty";}
 
 }

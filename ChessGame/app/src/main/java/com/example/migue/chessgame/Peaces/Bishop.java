@@ -49,5 +49,5 @@ public class Bishop extends Peace {
         return false;
     }
 
-
+    public String getType(){return "Bishop";}
 }

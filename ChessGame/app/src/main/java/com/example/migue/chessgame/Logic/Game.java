@@ -38,6 +38,13 @@ public class Game implements Serializable {
             }
             else if(changePeace(sl,sn,l,n)) {
                 isWhiteTurn = !isWhiteTurn;
+
+                if(GameOver()){
+                    Log.i("GAME","GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER");
+                }
+                else {
+                    Log.i("GAME","Continuar");
+                }
                 return true;
             }
             /*
@@ -62,35 +69,47 @@ public class Game implements Serializable {
 
     public boolean changePeace(int sl, int sn, int l, int n){
 
-        Peace p = table.getPeace(l,n);
-        table.setPeace(sl, sn, l, n);
-        table.setPeace(-1, -1, sl, sn);
-        if(IsKCheck()){
-            table.setPeace(l, n, sl, sn);
-            table.setThisPeace(p, l, n);
+        Peace p = table.getPeace(l,n);      //Guarda a posição destino
+        table.setPeace(sl, sn, l, n);       //Move a peça selecionada para o destino
+        table.setPeace(-1, -1, sl, sn);     //Mete a posição actual vazia
+
+        if(IsKCheck()){                     //Caso o rei esteja em check:
+            table.setPeace(l, n, sl, sn);       //Meter a peça no local Inicial
+            table.setThisPeace(p, l, n);        //Voltar a meter a peça removida no destino
             return false;
+        }
+        else{
+            table.rmv(p);
         }
         return true;
     }
 
-    public void GameOver(){
+    public boolean GameOver(){
 
         if (isWhiteTurn){
 
-            for (Peace p:table.getlista().white)
+            for (int i = 0; i < table.getlista().white.size(); i++)
             {
 
+                Log.i("Var",table.getlista().white.get(i).getType() + table.getlista().white.size() + " --> L " + table.getlista().white.get(i).getL()+ " - N " + table.getlista().white.get(i).getN());
+                if(SaveMyKing(table.getlista().white.get(i).getL(),table.getlista().white.get(i).getN()))return false;
             }
 
-            }else{
-
+        }else{
+            for (int i = 0; i < table.getlista().black.size(); i++)
+            {
+                Log.i("Var",table.getlista().black.get(i).getType() + table.getlista().black.size() + " --> L " + table.getlista().black.get(i).getL()+ " - N " + table.getlista().black.get(i).getN());
+                if(SaveMyKing(table.getlista().black.get(i).getL(),table.getlista().black.get(i).getN()))return false;
             }
+        }
+        return true;
     }
 
     public boolean trychangePeace(int sl, int sn, int l, int n){
 
         if(l<0||l>7||n<0||n>7)return false;
         Peace p = table.getPeace(l,n);
+        if(p.isWhite()==isWhiteTurn && !(p instanceof Empty))return false;
         table.setPeace(sl, sn, l, n);
         table.setPeace(-1, -1, sl, sn);
         if(IsKCheck()){
@@ -116,35 +135,194 @@ public class Game implements Serializable {
             if(trychangePeace(l,n,l-1,n-1))return true;
         } else if(table.getPeace(l,n) instanceof Pawn){
             if(table.getPeace(l,n).isWhite()){
-                if(trychangePeace(l,n,l+1,n+1)&& !(table.getPeace(l+1,n+1) instanceof  Empty) && table.getPeace(l+1,n+1).isWhite()!=isWhiteTurn)return true;
-                if(trychangePeace(l,n,l,n+1))return true;
-                if(trychangePeace(l,n,l-1,n+1)&& !(table.getPeace(l-1,n+1) instanceof  Empty) && table.getPeace(l-1,n+1).isWhite()!=isWhiteTurn)return true;
+                if(!(table.getPeace(l+1,n+1) instanceof  Empty)){
+                    if(trychangePeace(l,n,l+1,n+1))return true;
+                }
+                if(!(table.getPeace(l-1,n+1) instanceof  Empty)) {
+                    if (trychangePeace(l, n, l - 1, n + 1)) return true;
+                }
+                if(table.getPeace(l,n+1) instanceof  Empty){
+                    if(trychangePeace(l,n,l,n+1))return true;
+                }
             }
             else{
-                if(trychangePeace(l,n,l+1,n-1)&& !(table.getPeace(l+1,n-1) instanceof  Empty) && table.getPeace(l+1,n-1).isWhite()!=isWhiteTurn)return true;
-                if(trychangePeace(l,n,l,n-1))return true;
-                if(trychangePeace(l,n,l-1,n-1)&& !(table.getPeace(l-1,n-1) instanceof  Empty) && table.getPeace(l-1,n-1).isWhite()!=isWhiteTurn)return true;
+                if(!(table.getPeace(l+1,n-1) instanceof  Empty)){
+                    if(trychangePeace(l,n,l+1,n-1))return true;
+                }
+                if(!(table.getPeace(l-1,n-1) instanceof  Empty)) {
+                    if (trychangePeace(l, n, l - 1, n - 1)) return true;
+                }
+                if(table.getPeace(l,n-1) instanceof  Empty){
+                    if(trychangePeace(l,n,l,n-1))return true;
+                }
             }
         }else if (table.getPeace(l,n) instanceof Bishop){
-
+            int sl = l - 1;
+            int sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                   if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+                sn = sn + 1;
+            }
+            sl = l + 1;
+            sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                   if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+                sn = sn + 1;
+            }
+            sl = l - 1;
+            sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+                sn = sn - 1;
+            }
+            sl = l + 1;
+            sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+                sn = sn - 1;
+            }
         }else if (table.getPeace(l,n) instanceof Horse){
-
         } else if (table.getPeace(l,n) instanceof Queen){
+            int sl = l - 1;
+            int sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+                sn = sn + 1;
+            }
+            sl = l + 1;
+            sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+                sn = sn + 1;
+            }
+            sl = l - 1;
+            sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+                sn = sn - 1;
+            }
+            sl = l + 1;
+            sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+                sn = sn - 1;
+            }
 
+
+            sl = l;
+            sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sn = sn - 1;
+            }
+            sl = l;
+            sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sn = sn + 1;
+            }
+            sl = l - 1;
+            sn = n;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+            }
+            sl = l + 1;
+            sn = n;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+            }
         } else if (table.getPeace(l,n) instanceof Tower){
-
+            int sl = l;
+            int sn = n - 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sn = sn - 1;
+            }
+            sl = l;
+            sn = n + 1;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sn = sn + 1;
+            }
+            sl = l - 1;
+            sn = n;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//esq
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl - 1;
+            }
+            sl = l + 1;
+            sn = n;
+            while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//dir
+                if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
+                else
+                if(trychangePeace(l,n,sl,sn))return true;
+                if(!(table.getPeace(l,n) instanceof Empty)) break;
+                sl = sl + 1;
+            }
         }
         return false;
     }
 
     public boolean isKingCheck(int l, int n) {
         int sl, sn, p;
-        sl = l;
-        sn = n;
 
-
-        sl = sl - 1;
-        sn = sn + 1;
+        sl = l - 1;
+        sn = n + 1;
 
         p = 1;
         while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//sup esq
@@ -153,10 +331,12 @@ public class Game implements Serializable {
                     break;
 
                 else if (table.getPeace(sl, sn) instanceof Pawn && p == 1 && table.getPeace(sl, sn).isWhite()!=isWhiteTurn) {
+                    Log.i("Ataque","Pião sup esq");
                     return true;
                 } else
                     break;
             } else if (table.getPeace(sl, sn) instanceof Queen || table.getPeace(sl, sn) instanceof Bishop) {
+                Log.i("Ataque","Dama ou bispo ataque sup esq");
                 return true;
             }
 
@@ -177,10 +357,12 @@ public class Game implements Serializable {
                     break;
 
                 else if (table.getPeace(sl, sn) instanceof Pawn && p == 1 && table.getPeace(sl, sn).isWhite()!=isWhiteTurn) {
+                    Log.i("Ataque","Pião sup dir");
                     return true;
                 } else
                     break;
             } else if (table.getPeace(sl, sn) instanceof Queen || table.getPeace(sl, sn) instanceof Bishop) {
+                Log.i("Ataque","D ou B sup dir");
                 return true;
             }
 
@@ -189,11 +371,8 @@ public class Game implements Serializable {
             sn = sn + 1;
         }
 
-        sl = l;
-        sn = n;
-
-        sl = sl + 1;
-        sn = sn - 1;
+        sl = l + 1;
+        sn = n - 1;
         p = 1;
         while ((sl <= 7 && sl >= 0) && (sn <= 7 && sn >= 0)) {//inf dir
 
@@ -202,10 +381,13 @@ public class Game implements Serializable {
                     break;
 
                 else if (table.getPeace(sl, sn) instanceof Pawn && p == 1 && table.getPeace(sl, sn).isWhite()!=isWhiteTurn) {
+
+                    Log.i("Ataque","Pião inf dir");
                     return true;
                 } else
                     break;
             } else if (table.getPeace(sl, sn) instanceof Queen || table.getPeace(sl, sn) instanceof Bishop) {
+                Log.i("Ataque","D ou B inf dir");
                 return true;
             }
 
@@ -215,11 +397,8 @@ public class Game implements Serializable {
 
         }
 
-        sl=l;
-        sn=n;
-
-        sl = sl -1;
-        sn = sn -1;
+        sl = l -1;
+        sn = n -1;
         p=1;
         while((sl<=7 && sl>=0) && (sn<=7 && sn>=0)) {//inf esq
 
@@ -228,10 +407,12 @@ public class Game implements Serializable {
                     break;
 
                 else if (table.getPeace(sl, sn) instanceof Pawn && p == 1 && table.getPeace(sl, sn).isWhite()!=isWhiteTurn) {
+                    Log.i("Ataque","Pião inf esq");
                     return true;
                 } else
                     break;
             } else if (table.getPeace(sl, sn) instanceof Queen || table.getPeace(sl, sn) instanceof Bishop) {
+                Log.i("Ataque","B ou D inf esq");
                 return true;
             }
 
@@ -240,30 +421,29 @@ public class Game implements Serializable {
             sn = sn -1;
         }
 
-        sl=l;
-        sn=n;
             //se nao for diagonal
-        sl = sl -1;
+        sn=n;
+        sl = l -1;
         while(sl<=7 && sl>=0) {//esq
             if(!(table.getPeace(sl,sn) instanceof Empty) && (table.getPeace(sl,sn).isWhite()==isWhiteTurn || (!(table.getPeace(sl,sn) instanceof Queen) && !(table.getPeace(sl,sn) instanceof Tower)))){
                 break;
             }
             else if (table.getPeace(sl,sn) instanceof Queen || table.getPeace(sl,sn) instanceof Tower) {
+                Log.i("Ataque","T ou D esq");
                 return true;
             }
             sl = sl -1;
         }
 
-        sl=l;
         sn=n;
-
-        sl = sl +1;
+        sl = l +1;
 
         while(sl<=7 && sl>=0) {//dir
             if(!(table.getPeace(sl,sn) instanceof Empty) && (table.getPeace(sl,sn).isWhite()==isWhiteTurn || (!(table.getPeace(sl,sn) instanceof Queen) && !(table.getPeace(sl,sn) instanceof Tower)))){
                 break;
             }
             else if (table.getPeace(sl,sn) instanceof Queen || table.getPeace(sl,sn) instanceof Tower) {
+                Log.i("Ataque","T ou D dir");
                 return true;
             }
             sl = sl +1;
@@ -271,28 +451,27 @@ public class Game implements Serializable {
 
 
         sl=l;
-        sn=n;
-
-        sn = sn -1;
+        sn = n -1;
 
         while(sn<=7 && sn>=0) {//inf
             if(!(table.getPeace(sl,sn) instanceof Empty) && (table.getPeace(sl,sn).isWhite()==isWhiteTurn || (!(table.getPeace(sl,sn) instanceof Queen) && !(table.getPeace(sl,sn) instanceof Tower)))){
                 break;
             }
             else if (table.getPeace(sl,sn) instanceof Queen || table.getPeace(sl,sn) instanceof Tower) {
+                Log.i("Ataque","T ou D baixo");
                 return true;
             }
             sn = sn -1;
         }
 
         sl=l;
-        sn=n;
-        sn = sn +1;
+        sn = n +1;
         while(sn<=7 && sn>=0) {//sup
             if(!(table.getPeace(sl,sn) instanceof Empty) && (table.getPeace(sl,sn).isWhite()==isWhiteTurn || (!(table.getPeace(sl,sn) instanceof Queen) && !(table.getPeace(sl,sn) instanceof Tower)))){
                 break;
             }
             else if (table.getPeace(sl,sn) instanceof Queen || table.getPeace(sl,sn) instanceof Tower) {
+                Log.i("Ataque","T ou D top");
                 return true;
             }
             sn = sn +1;
@@ -302,29 +481,45 @@ public class Game implements Serializable {
         sl=l;
         sn=n;
         if(sl+1<=7 && sn+2<=7)            //sup sup dir
-            if( table.getPeace(sl+1,sn+2) instanceof Horse && table.getPeace(sl+1,sn+2).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl+1,sn+2) instanceof Horse && table.getPeace(sl+1,sn+2).isWhite()!=isWhiteTurn) {
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl+2<=7 && sn+1<=7)            //sup dir dir
-            if( table.getPeace(sl+2,sn+1) instanceof Horse && table.getPeace(sl+2,sn+1).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl+2,sn+1) instanceof Horse && table.getPeace(sl+2,sn+1).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl+2<=7 && sn-1>=0)            //inf dir dir
-            if( table.getPeace(sl+2,sn-1) instanceof Horse && table.getPeace(sl+2,sn-1).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl+2,sn-1) instanceof Horse && table.getPeace(sl+2,sn-1).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl+1<=7 && sn-2>=0)            //inf inf dir
-            if( table.getPeace(sl+1,sn-2) instanceof Horse && table.getPeace(sl+1,sn-2).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl+1,sn-2) instanceof Horse && table.getPeace(sl+1,sn-2).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl-1>=0 && sn-2>=0)            //inf inf esq
-            if( table.getPeace(sl-1,sn-2) instanceof Horse && table.getPeace(sl-1,sn-2).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl-1,sn-2) instanceof Horse && table.getPeace(sl-1,sn-2).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl-2>=0 && sn-1>=0)            //inf esq esq
-            if( table.getPeace(sl-2,sn-1) instanceof Horse && table.getPeace(sl-2,sn-1).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl-2,sn-1) instanceof Horse && table.getPeace(sl-2,sn-1).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl-2>=0 && sn+1<=7)            //sup esq esq
-            if( table.getPeace(sl-2,sn+1) instanceof Horse && table.getPeace(sl-2,sn+1).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl-2,sn+1) instanceof Horse && table.getPeace(sl-2,sn+1).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
         if(sl-1>=0 && sn+2<=7)            //sup sup esq
-            if( table.getPeace(sl-1,sn+2) instanceof Horse && table.getPeace(sl-1,sn+2).isWhite()!=isWhiteTurn)
+            if( table.getPeace(sl-1,sn+2) instanceof Horse && table.getPeace(sl-1,sn+2).isWhite()!=isWhiteTurn){
+                Log.i("Ataque","Cavalo");
                 return true;
+            }
 
         return false;
     }

@@ -57,4 +57,5 @@ public class Tower extends Peace {
         }
         return false;
     }
+    public String getType(){return "Tower";}
 }

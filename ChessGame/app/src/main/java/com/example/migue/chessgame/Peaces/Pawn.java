@@ -37,4 +37,5 @@ public class Pawn extends Peace {
 
         return false;
     }
+    public String getType(){return "Pawn";}
 }

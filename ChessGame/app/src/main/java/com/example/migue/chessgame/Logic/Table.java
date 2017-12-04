@@ -102,7 +102,7 @@ public class Table implements Serializable{
     public Listas getlista(){return lista;}
 
     public Peace getPeace(int i, int j){
-        if((i>=0||i<=7) && (j>=0||j<=7))
+        if((i>=0&&i<=7) && (j>=0&&j<=7))
             return coord[i][j];
         return null;
     }
@@ -110,13 +110,9 @@ public class Table implements Serializable{
 
     public void setPeace(int l, int n, int i, int j){
 
-        if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
-            Peace p= coord[i][j];
-            if(p.isWhite())
-                lista.rmvWhite(p);
-            else
-                lista.rmvBlack(p);
+        //TO DO -> Caso coma uma peça
 
+        if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
             coord[i][j]=new Empty(false);
             return;
         }
@@ -132,8 +128,15 @@ public class Table implements Serializable{
 }
 
     public void setThisPeace(Peace p, int l, int n) {
-        lista.addWhite(p);
-        coord[l][n] =p; //actualiza as coordenadas da tabela
+        coord[l][n] = p; //actualiza as coordenadas da tabela
+    }
 
+    public void rmv(Peace p) {
+        if(!(p instanceof Empty)) {
+            if (p.isWhite())
+                lista.rmvWhite(p);
+            else
+                lista.rmvBlack(p);
+        }
     }
 }

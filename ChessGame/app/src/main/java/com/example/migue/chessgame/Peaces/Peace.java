@@ -30,4 +30,6 @@ public abstract class Peace implements Serializable {
     public int getN(){
         return sn;
     }
+
+    public abstract String getType();
 }

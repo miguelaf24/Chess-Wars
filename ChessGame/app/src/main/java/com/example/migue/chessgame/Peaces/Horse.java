@@ -21,4 +21,5 @@ public class Horse extends Peace {
 
         return false;
     }
+    public String getType(){return "Horse";}
 }

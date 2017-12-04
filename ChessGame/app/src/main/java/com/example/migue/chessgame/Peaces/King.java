@@ -23,4 +23,5 @@ public class King extends Peace {
         }
         return false;
     }
+    public String getType(){return "King";}
 }
