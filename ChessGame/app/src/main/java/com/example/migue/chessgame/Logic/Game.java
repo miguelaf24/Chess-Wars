@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class Game implements Serializable {
     boolean multiplayer;
     boolean isWhiteTurn;
+    int nJogada;
     Table table;
     // Istate state;
 
@@ -21,6 +22,7 @@ public class Game implements Serializable {
         isWhiteTurn = true;
         this.multiplayer = multiplayer;
         table = new Table();
+        nJogada=0;
         //state = new IBeginning(table);
     }
 
@@ -38,7 +40,7 @@ public class Game implements Serializable {
             }
             else if(changePeace(sl,sn,l,n)) {
                 isWhiteTurn = !isWhiteTurn;
-
+                nJogada++;
                 if(GameOver()){
                     Log.i("GAME","GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER");
                 }
@@ -68,18 +70,23 @@ public class Game implements Serializable {
     }
 
     public boolean changePeace(int sl, int sn, int l, int n){
-
+        boolean isF=false;
         Peace p = table.getPeace(l,n);      //Guarda a posição destino
+        if(p.isFirstPlay())isF = true;
         table.setPeace(sl, sn, l, n);       //Move a peça selecionada para o destino
         table.setPeace(-1, -1, sl, sn);     //Mete a posição actual vazia
 
         if(IsKCheck()){                     //Caso o rei esteja em check:
             table.setPeace(l, n, sl, sn);       //Meter a peça no local Inicial
-            table.setThisPeace(p, l, n);        //Voltar a meter a peça removida no destino
+            table.setThisPeace(p, l, n);//Voltar a meter a peça removida no destino
+            if(isF){
+                p.setFirstMove();
+            }
             return false;
         }
         else{
             table.rmv(p);
+            if(isF && table.getPeace(l,n) instanceof Pawn)table.getPeace(l,n).setJogadaFirst(nJogada);
         }
         return true;
     }
@@ -106,7 +113,6 @@ public class Game implements Serializable {
     }
 
     public boolean trychangePeace(int sl, int sn, int l, int n){
-
         if(l<0||l>7||n<0||n>7)return false;
         Peace p = table.getPeace(l,n);
         if(p.isWhite()==isWhiteTurn && !(p instanceof Empty))return false;
@@ -133,8 +139,14 @@ public class Game implements Serializable {
             if(trychangePeace(l,n,l-1,n))return true;
             if(trychangePeace(l,n,l-1,n+1))return true;
             if(trychangePeace(l,n,l-1,n-1))return true;
+            if(table.getPeace(l,n).isFirstPlay()){
+                if(table.getPeace(l+1,n) instanceof Empty && table.getPeace(l+2,n) instanceof Empty && table.getPeace(l+3,n).isFirstPlay())return true;
+                if(table.getPeace(l-1,n) instanceof Empty && table.getPeace(l-2,n) instanceof Empty && table.getPeace(l-1,n) instanceof Empty && table.getPeace(l-4,n).isFirstPlay())return true;
+            }
         } else if(table.getPeace(l,n) instanceof Pawn){
             if(table.getPeace(l,n).isWhite()){
+                if(((Pawn) table.getPeace(l,n)).isFirstPlay() && table.getPeace(l,n+1) instanceof  Empty && table.getPeace(l,n+2) instanceof  Empty)
+                    if(trychangePeace(l,n,l,n+2))return true;
                 if(!(table.getPeace(l+1,n+1) instanceof  Empty)){
                     if(trychangePeace(l,n,l+1,n+1))return true;
                 }
@@ -152,6 +164,8 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l-1,n-1) instanceof  Empty)) {
                     if (trychangePeace(l, n, l - 1, n - 1)) return true;
                 }
+                if(((Pawn) table.getPeace(l,n)).isFirstPlay() && table.getPeace(l,n-1) instanceof  Empty && table.getPeace(l,n-2) instanceof  Empty)
+                    if(trychangePeace(l,n,l,n-2))return true;
                 if(table.getPeace(l,n-1) instanceof  Empty){
                     if(trychangePeace(l,n,l,n-1))return true;
                 }

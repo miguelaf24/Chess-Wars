@@ -30,6 +30,9 @@ public abstract class Peace implements Serializable {
     public int getN(){
         return sn;
     }
-
+    public boolean isFirstPlay(){return false;};
     public abstract String getType();
+    public void setFirstMove(){};
+    public void setJogadaFirst(int a){};
+    public int getJogadaFirst(){return -2;};
 }

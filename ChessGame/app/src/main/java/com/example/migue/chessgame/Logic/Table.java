@@ -109,9 +109,6 @@ public class Table implements Serializable{
 
 
     public void setPeace(int l, int n, int i, int j){
-
-        //TO DO -> Caso coma uma peça
-
         if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
             coord[i][j]=new Empty(false);
             return;

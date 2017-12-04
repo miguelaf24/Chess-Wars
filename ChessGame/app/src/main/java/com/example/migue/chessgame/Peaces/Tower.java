@@ -9,8 +9,11 @@ import com.example.migue.chessgame.Logic.Table;
  */
 
 public class Tower extends Peace {
+    boolean firstPlay;
     public Tower(boolean isWhite, int l, int n) {
+
         super(isWhite,l,n);
+        firstPlay=true;
     }
 
     @Override
@@ -45,17 +48,22 @@ public class Tower extends Peace {
 
                     sl=sl+auxl;
                     sn=sn+auxn;
-                    if(sl==l && sn ==n && table.getPeace(l,n).isWhite!=isWhite)
+                    if(sl==l && sn ==n && table.getPeace(l,n).isWhite!=isWhite) {
+                        if (firstPlay) firstPlay = false;
                         return true;
+                    }
                     if(!(table.getPeace(sl,sn) instanceof Empty)){
                         return false;
                     }
                 }
+                if (firstPlay) firstPlay = false;
                 return true;
             }
 
         }
         return false;
     }
+    public boolean isFirstPlay(){return firstPlay;}
     public String getType(){return "Tower";}
+    public void setFirstMove(){firstPlay=true;}
 }

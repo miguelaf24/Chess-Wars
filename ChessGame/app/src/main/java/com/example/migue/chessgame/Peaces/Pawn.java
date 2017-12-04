@@ -10,8 +10,9 @@ import com.example.migue.chessgame.Logic.Table;
 
 public class Pawn extends Peace {
     boolean firstPlay;
+    int jf;
     public Pawn(boolean isWhite, int l, int n) {
-        super(isWhite,l,n); firstPlay=true;}
+        super(isWhite,l,n); firstPlay=true; jf=-2;}
 
 
     @Override
@@ -33,9 +34,11 @@ public class Pawn extends Peace {
                 return true;
             }
         }
-
-
         return false;
     }
+    public boolean isFirstPlay(){return firstPlay;}
+    public void setFirstMove(){firstPlay=true;}
     public String getType(){return "Pawn";}
+    public void setJogadaFirst(int a){jf = a;}
+    public int getJogadaFirst(){return jf;}
 }
