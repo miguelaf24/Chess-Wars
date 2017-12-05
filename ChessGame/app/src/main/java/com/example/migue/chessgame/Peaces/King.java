@@ -30,7 +30,7 @@ public class King extends Peace {
                 }
                 if(table.getPeace(sl-1,sn) instanceof Empty && table.getPeace(sl-2,sn) instanceof Empty && table.getPeace(sl-1,sn) instanceof Empty && table.getPeace(sl-4,sn).isFirstPlay()){
                     table.setPeace(sl-4,sn,sl-1,sn);
-                    table.setPeace(-1, -1, sl-4, sn);;
+                    table.setPeace(-1, -1, sl-4, sn);
                     return true;
                 }
 

@@ -61,4 +61,9 @@ public class Listas {
         }
         return new Empty(false);
     }
+
+    public void addP(Peace p) {
+        if(p.isWhite())addWhite(p);
+        else addBlack(p);
+    }
 }

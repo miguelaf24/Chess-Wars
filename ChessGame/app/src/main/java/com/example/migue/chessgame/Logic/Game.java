@@ -41,6 +41,7 @@ public class Game implements Serializable {
             else if(changePeace(sl,sn,l,n)) {
                 isWhiteTurn = !isWhiteTurn;
                 nJogada++;
+                verPawnToQueen();
                 if(GameOver()){
                     Log.i("GAME","GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER");
                 }
@@ -58,6 +59,24 @@ public class Game implements Serializable {
         }
 
         return false;
+    }
+
+    private void verPawnToQueen() {
+        for(int i = 0; i <8;i++){
+            if(table.getPeace(i,0) instanceof Pawn){
+                changeToQueen(i,0);
+            }
+            if(table.getPeace(i,7) instanceof Pawn){
+                changeToQueen(i,7);
+            }
+        }
+    }
+
+    private void changeToQueen(int l, int n) {
+        Peace p = new Queen(table.getPeace(l,n).isWhite(),l,n);
+        table.setThisPeace(p,l,n);
+        table.rmv(table.getPeace(l,n));
+        table.addList(p);
     }
 
     public Peace getPeace(int i, int j) {

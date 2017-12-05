@@ -107,6 +107,9 @@ public class Table implements Serializable{
         return null;
     }
 
+    public void addList(Peace p){
+        lista.addP(p);
+    }
 
     public void setPeace(int l, int n, int i, int j){
         if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
