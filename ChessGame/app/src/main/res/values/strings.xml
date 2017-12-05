@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Star Chess Wars</string>
     <string name="play">Jogar</string>
-    <string name="title">Chess Wars</string>
+    <string name="Instructions">Instruções</string>
+    <string name="mExit">Exit</string>
+    <string name="title">Star Wars Chess</string>
 </resources>

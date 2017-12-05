@@ -54,8 +54,8 @@ public class Listas {
          return null;
     }
     public Peace getBlack(int l, int n){
-        for(int i = 0 ; i<white.size(); i++){
-            if(white.get(i).getL()==l && white.get(i).getN()==n){
+        for(int i = 0 ; i<black.size(); i++){
+            if(black.get(i).getL()==l && black.get(i).getN()==n){
                 return black.get(i);
             }
         }
