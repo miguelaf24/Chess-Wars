@@ -4,4 +4,13 @@
     <string name="Instructions">Instruções</string>
     <string name="mExit">Exit</string>
     <string name="title">Star Wars Chess</string>
+    <string name="networkMult">Multiplayer (Network)</string>
+    <string name="localMult">Multiplayer (Local)</string>
+    <string name="playSolo">Single Player</string>
+    <string name="AlertDialogTitleS">Server/Client</string>
+    <string name="ChoseDialogSelMes">Chose Between two options:</string>
+    <string name="PosButDialog">Server</string>
+    <string name="NegButDiaLog">Client</string>
+    <string name="servDlgWindow">Waiting for a client...</string>
+    <string name="servDlgWindowTit">Server</string>
 </resources>

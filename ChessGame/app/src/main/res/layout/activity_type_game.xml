@@ -1,9 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.migue.chessgame.TypeGameActivity">
+    tools:context="com.example.migue.chessgame.TypeGameActivity"
+    android:orientation="vertical"
+    android:layout_weight="1"
+    android:background="@color/colorBlack"
+    >
 
-</android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:orientation="vertical"
+        >
+
+        <Button
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:textSize="25dp"
+            android:background="@color/colorBlackGrey"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/playSolo"
+            android:id="@+id/bPlaySolo"
+            android:textColor="@android:color/white"
+            android:typeface="monospace"
+            />
+
+        <Button
+            android:layout_margin="15dp"
+            android:textSize="25dp"
+            android:background="@color/colorBlackGrey"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/localMult"
+            android:id="@+id/bLocalMult"
+            android:textColor="@android:color/white"
+            android:typeface="monospace"
+            />
+
+        <Button
+            android:layout_margin="15dp"
+            android:textSize="25dp"
+            android:layout_weight="1"
+            android:background="@color/colorBlackGrey"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/networkMult"
+            android:id="@+id/bMultiNet"
+            android:textColor="@android:color/white"
+            android:typeface="monospace"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>
+

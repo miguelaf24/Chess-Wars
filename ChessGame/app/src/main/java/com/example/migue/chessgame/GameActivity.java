@@ -1,11 +1,21 @@
 package com.example.migue.chessgame;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -14,7 +24,35 @@ import com.example.migue.chessgame.Logic.Game;
 import com.example.migue.chessgame.Peaces.*;
 import com.example.migue.chessgame.R;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
+
+
 public class GameActivity extends Activity {
+
+    public static final int TYPEGAMES = 0;
+    public static final int TYPEGAMEML = 1;
+    public static final int TYPEGAMEMS = 2;
+    public static final int TYPEGAMEMC = 3;
+    private static final int PORT = 8899;
+    private static final int PORTaux = 9988; // to test with emulators
+
+    int mode = 0;
+    ProgressDialog pd = null;
+    ServerSocket serverSocket=null;
+    Socket socketGame = null;
+    BufferedReader input;
+    PrintWriter output;
+    Handler procMsg = null;
 
     Game game;
     int sl;
@@ -26,7 +64,29 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        game = new Game(false);
+
+        Intent intent = getIntent();
+        if(intent != null)
+            mode = intent.getIntExtra("mode",0);
+
+        if(mode == TYPEGAMES)
+            game = new Game(true);
+        else
+            game = new Game(false);
+
+        if(mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
+
+            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            if(networkInfo==null || !(networkInfo.isConnected())){
+                Toast.makeText(this,"Error Connection", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+
+            procMsg = new Handler();
+
+        }
 
         sn = -1;
         sl = -1;
@@ -159,6 +219,141 @@ public class GameActivity extends Activity {
         refreshTable();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mode==TYPEGAMEMS)
+            server();
+        else if(mode==TYPEGAMEMC)
+            clientDlg();
+    }
+
+
+    void server() {
+        String ip = getLocalIpAddress();
+        pd = new ProgressDialog(this);
+        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
+                + ")");
+        pd.setTitle(getString(R.string.servDlgWindowTit));
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+                if (serverSocket!=null) {
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {
+                    }
+                    serverSocket=null;
+                }
+            }
+        });
+        pd.show();
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    serverSocket = new ServerSocket(PORT);
+                    socketGame = serverSocket.accept();
+                    serverSocket.close();
+                    serverSocket=null;
+                    commThread.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    socketGame = null;
+                }
+                procMsg.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        pd.dismiss();
+                       if (socketGame == null)
+                            finish();
+                    }
+                });
+            }
+        });
+        t.start();
+    }
+    private void clientDlg() {
+        final EditText edtIP = new EditText(this);
+        edtIP.setText("10.0.2.2");
+        AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
+                .setMessage("Server IP")
+                .setView(edtIP)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        client(edtIP.getText().toString(), PORT);
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        finish();
+                    }
+                }).create();
+        selection.show();
+    }
+
+    private void client(final String strIP,final int port) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d("RPS", "Connecting to the server  " + strIP);
+                    socketGame = new Socket(strIP, port);
+                } catch (Exception e) {
+                    socketGame = null;
+                }
+                if (socketGame == null) {
+                    procMsg.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    });
+                    return;
+                }
+                commThread.start();
+            }
+        });
+        t.start();
+    }
+
+    Thread commThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                input = new BufferedReader(new InputStreamReader(
+                        socketGame.getInputStream()));
+                output = new PrintWriter(socketGame.getOutputStream());
+                while (!Thread.currentThread().isInterrupted()) {
+                    String read = input.readLine();
+                    final int move = Integer.parseInt(read);
+                    Log.d("RPS", "Received: " + move);
+                    procMsg.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //TODO -> Inicia Movimento!
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                procMsg.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                        //TODO -> VERIFICAR TOAST
+                        Toast.makeText(getApplicationContext(),
+                                "Fim de Jogada!!!???", Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+        }
+    });
+
     void refreshTable(){
         for(int i = 0; i < 8 ; i++){
             for(int j = 0; j < 8 ; j++){
@@ -209,5 +404,24 @@ public class GameActivity extends Activity {
 
             }
         }
+    }
+    public static String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface
+                    .getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf
+                        .getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()
+                            && inetAddress instanceof Inet4Address) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }

@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
         bPlay.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                intent = new Intent(context, GameActivity.class);
+                intent = new Intent(context, TypeGameActivity.class);
 
                 startActivity(intent);
             }

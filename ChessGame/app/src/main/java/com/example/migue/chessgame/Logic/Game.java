@@ -11,16 +11,16 @@ import java.io.Serializable;
  */
 
 public class Game implements Serializable {
-    boolean multiplayer;
+    boolean singleplayer;
     boolean isWhiteTurn;
     int nJogada;
     Table table;
     // Istate state;
 
 
-    public Game(boolean multiplayer) {
+    public Game(boolean singleplayer) {
         isWhiteTurn = true;
-        this.multiplayer = multiplayer;
+        this.singleplayer = singleplayer;
         table = new Table();
         nJogada=0;
         //state = new IBeginning(table);
