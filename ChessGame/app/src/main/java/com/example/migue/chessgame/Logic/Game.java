@@ -15,6 +15,7 @@ public class Game implements Serializable {
     boolean isWhiteTurn;
     int nJogada;
     Table table;
+
     // Istate state;
 
 

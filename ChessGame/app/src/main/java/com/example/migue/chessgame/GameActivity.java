@@ -27,6 +27,8 @@ import com.example.migue.chessgame.R;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -50,8 +52,8 @@ public class GameActivity extends Activity {
     ProgressDialog pd = null;
     ServerSocket serverSocket=null;
     Socket socketGame = null;
-    BufferedReader input;
-    PrintWriter output;
+    ObjectInputStream input;
+    ObjectOutputStream output;
     Handler procMsg = null;
 
     Game game;
@@ -193,6 +195,8 @@ public class GameActivity extends Activity {
                                 view.setBackgroundColor(Color.RED);
                                 if(game.doIt(sl,sn,l,n)){
                                     refreshTable();
+                                    //ENVIA O JOGO DEPOIS DE SER JOGADO!
+                                    sendGame();
                                 }
                                 else{
                                     sl = -1;
@@ -228,6 +232,22 @@ public class GameActivity extends Activity {
             clientDlg();
     }
 
+    void sendGame(){
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d("Coms", "Sending game");
+                    output.writeObject(game);
+                    output.flush();
+                } catch (Exception e) {
+                    Log.d("Coms", "Error sending a move");
+                }
+            }
+        });
+        t.start();
+
+    }
 
     void server() {
         String ip = getLocalIpAddress();
@@ -325,19 +345,12 @@ public class GameActivity extends Activity {
         @Override
         public void run() {
             try {
-                input = new BufferedReader(new InputStreamReader(
-                        socketGame.getInputStream()));
-                output = new PrintWriter(socketGame.getOutputStream());
+                input = new ObjectInputStream(socketGame.getInputStream());
+                output = new ObjectOutputStream(socketGame.getOutputStream());;
                 while (!Thread.currentThread().isInterrupted()) {
-                    String read = input.readLine();
-                    final int move = Integer.parseInt(read);
-                    Log.d("RPS", "Received: " + move);
-                    procMsg.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //TODO -> Inicia Movimento!
-                        }
-                    });
+                    game = (Game) input.readObject();
+                    Log.d("Coms", "Received: game");
+                    refreshTable();
                 }
             } catch (Exception e) {
                 procMsg.post(new Runnable() {
@@ -346,7 +359,7 @@ public class GameActivity extends Activity {
                         finish();
                         //TODO -> VERIFICAR TOAST
                         Toast.makeText(getApplicationContext(),
-                                "Fim de Jogada!!!???", Toast.LENGTH_LONG)
+                                "Jogo terminou?", Toast.LENGTH_LONG)
                                 .show();
                     }
                 });

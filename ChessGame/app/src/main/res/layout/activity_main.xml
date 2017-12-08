@@ -52,7 +52,18 @@
             android:textColor="@android:color/white"
             android:typeface="monospace"
             />
-
+        <Button
+            android:layout_margin="15dp"
+            android:textSize="25dp"
+            android:layout_weight="1"
+            android:background="@color/colorBlackGrey"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="camera"
+            android:id="@+id/btnCapture"
+            android:textColor="@android:color/white"
+            android:typeface="monospace"
+            />
         <Button
             android:layout_margin="15dp"
             android:textSize="25dp"
@@ -65,6 +76,9 @@
             android:textColor="@android:color/white"
             android:typeface="monospace"
             />
+
+
+
 
     </LinearLayout>
 
