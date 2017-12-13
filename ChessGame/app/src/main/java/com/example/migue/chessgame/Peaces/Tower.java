@@ -4,11 +4,13 @@ import android.util.Log;
 
 import com.example.migue.chessgame.Logic.Table;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 27/11/2017.
  */
 
-public class Tower extends Peace {
+public class Tower extends Peace implements Serializable {
     boolean firstPlay;
     public Tower(boolean isWhite, int l, int n) {
 

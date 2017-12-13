@@ -2,11 +2,13 @@ package com.example.migue.chessgame.Peaces;
 
 import com.example.migue.chessgame.Logic.Table;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 27/11/2017.
  */
 
-public class Queen extends Peace {
+public class Queen extends Peace implements Serializable {
     public Queen(boolean isWhite, int l, int n) {
         super(isWhite,l,n);
     }

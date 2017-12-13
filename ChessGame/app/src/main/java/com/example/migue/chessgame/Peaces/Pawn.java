@@ -4,11 +4,13 @@ import android.util.Log;
 
 import com.example.migue.chessgame.Logic.Table;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 27/11/2017.
  */
 
-public class Pawn extends Peace {
+public class Pawn extends Peace implements Serializable {
     boolean firstPlay;
     int jf;
     public Pawn(boolean isWhite, int l, int n) {

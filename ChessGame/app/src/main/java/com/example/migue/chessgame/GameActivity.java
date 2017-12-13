@@ -56,7 +56,7 @@ public class GameActivity extends Activity {
     ObjectOutputStream output;
     Handler procMsg = null;
 
-    Game game;
+    public Game game;
     int sl;
     int sn;
 
@@ -233,15 +233,17 @@ public class GameActivity extends Activity {
     }
 
     void sendGame(){
+
+        final Game gameS= this.game;
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     Log.d("Coms", "Sending game");
-                    output.writeObject(game);
+                    output.writeObject(gameS);
                     output.flush();
                 } catch (Exception e) {
-                    Log.d("Coms", "Error sending a move");
+                    Log.d("Coms", "Error sending a move" + e);
                 }
             }
         });
@@ -345,8 +347,9 @@ public class GameActivity extends Activity {
         @Override
         public void run() {
             try {
+                output = new ObjectOutputStream(socketGame.getOutputStream());
                 input = new ObjectInputStream(socketGame.getInputStream());
-                output = new ObjectOutputStream(socketGame.getOutputStream());;
+
                 while (!Thread.currentThread().isInterrupted()) {
                     game = (Game) input.readObject();
                     Log.d("Coms", "Received: game");

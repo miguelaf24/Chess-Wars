@@ -1,5 +1,6 @@
 package com.example.migue.chessgame.Peaces;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
  * Created by Bruno Santos on 11/29/2017.
  */
 
-public class Listas {
+public class Listas implements Serializable{
 
     public ArrayList<Peace> white;
     public ArrayList<Peace> black;
