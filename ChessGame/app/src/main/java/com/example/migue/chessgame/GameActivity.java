@@ -176,39 +176,38 @@ public class GameActivity extends Activity {
                         int l = str.charAt(str.length()-2) - 'a';
                         int n = Character.getNumericValue(str.charAt(str.length()-1))-1;
 
-
-                        if(sl < 0 || sn < 0){//Se a peça não estiver selecionada
-
-
-                            if((!(game.getPeace(l,n) instanceof Empty)) && game.getPeace(l,n).isWhite()==game.isWhiteTurn()){
-                                view.setBackgroundColor(Color.BLUE);
-                                sl = l;
-                                sn = n;
-                            }
-                            else{
-                                sl = -1;
-                                sn = -1;
-                            }
-                        }
-                        else{
-                            if(game.getPeace(l,n) instanceof Empty || game.getPeace(l,n).isWhite()!=game.isWhiteTurn()){
-                                view.setBackgroundColor(Color.RED);
-                                if(game.doIt(sl,sn,l,n)){
-                                    refreshTable();
-                                    //ENVIA O JOGO DEPOIS DE SER JOGADO!
-                                    sendGame();
+                        if(game.isMyTurn(mode)){
+                            if(sl < 0 || sn < 0){//Se a peça não estiver selecionada
+                                if((!(game.getPeace(l,n) instanceof Empty)) && game.getPeace(l,n).isWhite()==game.isWhiteTurn()){
+                                    view.setBackgroundColor(Color.BLUE);
+                                    sl = l;
+                                    sn = n;
                                 }
                                 else{
                                     sl = -1;
                                     sn = -1;
-                                    refreshTable();
                                 }
                             }
                             else{
-                                refreshTable();
-                                view.setBackgroundColor(Color.GREEN);
-                                sl = l;
-                                sn = n;
+                                if(game.getPeace(l,n) instanceof Empty || game.getPeace(l,n).isWhite()!=game.isWhiteTurn()){
+                                    view.setBackgroundColor(Color.RED);
+                                    if(game.doIt(sl,sn,l,n)){
+                                        refreshTable();
+                                        //ENVIA O JOGO DEPOIS DE SER JOGADO!
+                                        sendGame();
+                                    }
+                                    else{
+                                        sl = -1;
+                                        sn = -1;
+                                        refreshTable();
+                                    }
+                                }
+                                else{
+                                    refreshTable();
+                                    view.setBackgroundColor(Color.GREEN);
+                                    sl = l;
+                                    sn = n;
+                                }
                             }
                         }
                         //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
@@ -299,7 +298,7 @@ public class GameActivity extends Activity {
     }
     private void clientDlg() {
         final EditText edtIP = new EditText(this);
-        edtIP.setText("10.0.2.2");
+        edtIP.setText("192.168.1.3");
         AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
                 .setMessage("Server IP")
                 .setView(edtIP)
@@ -353,17 +352,23 @@ public class GameActivity extends Activity {
                 while (!Thread.currentThread().isInterrupted()) {
                     game = (Game) input.readObject();
                     Log.d("Coms", "Received: game");
-                    refreshTable();
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            refreshTable();
+                        }
+                    });
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 procMsg.post(new Runnable() {
                     @Override
                     public void run() {
-                        finish();
+                        if(game.GameOver()||Thread.currentThread().isInterrupted())
+                            finish();
                         //TODO -> VERIFICAR TOAST
-                        Toast.makeText(getApplicationContext(),
-                                "Jogo terminou?", Toast.LENGTH_LONG)
-                                .show();
+                        Log.d("Coms", "Jogo terminou?" + e.toString());
+                        finish();
                     }
                 });
             }

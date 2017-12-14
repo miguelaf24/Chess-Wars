@@ -559,4 +559,10 @@ public class Game implements Serializable {
     }
 
 
+    public boolean isMyTurn(int mode) {
+        if(mode < 2) return true;
+        if(isWhiteTurn && mode==2)return true;
+        if(!isWhiteTurn && mode==3)return true;
+        return false;
+    }
 }
