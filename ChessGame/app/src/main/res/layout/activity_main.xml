@@ -47,8 +47,8 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="@string/Instructions"
-            android:id="@+id/bInstructions"
+            android:text="@string/Historico"
+            android:id="@+id/bHistorico"
             android:textColor="@android:color/white"
             android:typeface="monospace"
             />
@@ -59,7 +59,7 @@
             android:background="@color/colorBlackGrey"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="camera"
+            android:text="Perfil"
             android:id="@+id/btnCapture"
             android:textColor="@android:color/white"
             android:typeface="monospace"
@@ -76,10 +76,6 @@
             android:textColor="@android:color/white"
             android:typeface="monospace"
             />
-
-
-
-
     </LinearLayout>
 
 </LinearLayout>

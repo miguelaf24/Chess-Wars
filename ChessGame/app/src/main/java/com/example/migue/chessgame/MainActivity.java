@@ -22,6 +22,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            requestPermissions(new String[]{
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    2501);
+        }
 
 bPlay = (Button) findViewById(R.id.bPlay);
 
@@ -37,18 +44,12 @@ bPlay = (Button) findViewById(R.id.bPlay);
         bPhoto = (Button) findViewById(R.id.btnCapture);
 
         bPhoto.setOnClickListener(new View.OnClickListener(){
-            @TargetApi(Build.VERSION_CODES.M)
+
             @Override
             public void onClick(View view) {
-                if (checkSelfPermission(Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
+                intent = new Intent(context, CameraActivity.class);
 
-                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-                            1888);
-                }
-                intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-
-                startActivityForResult(intent, 1888);
+                startActivity(intent);
             }
         });
 

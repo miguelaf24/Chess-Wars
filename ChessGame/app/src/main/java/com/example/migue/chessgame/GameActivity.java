@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,14 +21,10 @@ import android.widget.Toast;
 
 import com.example.migue.chessgame.Logic.Game;
 import com.example.migue.chessgame.Peaces.*;
-import com.example.migue.chessgame.R;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -41,14 +36,16 @@ import java.util.Enumeration;
 
 public class GameActivity extends Activity {
 
-    public static final int TYPEGAMES = 0;
-    public static final int TYPEGAMEML = 1;
-    public static final int TYPEGAMEMS = 2;
-    public static final int TYPEGAMEMC = 3;
-    private static final int PORT = 8899;
-    private static final int PORTaux = 9988; // to test with emulators
+    //Modos de Jogo
+    int mode = 0;   //iniciação do modo de jogo
+    public static final int TYPEGAMES = 0;  //SinglePlayer
+    public static final int TYPEGAMEML = 1; //MultiPlayer One Phone
+    public static final int TYPEGAMEMS = 2; //MultiPlayer Rede Server
+    public static final int TYPEGAMEMC = 3; //MultiPlayer Rede Cliente
 
-    int mode = 0;
+    //Rede
+    private static final int PORT = 8899;   //Port para rede
+    private static final int PORTaux = 9988; // to test with emulators
     ProgressDialog pd = null;
     ServerSocket serverSocket=null;
     Socket socketGame = null;
@@ -66,30 +63,43 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        if(savedInstanceState == null) {//se não tem nada guardado!
+            //Verifica o modo de jogo enviado
+            Intent intent = getIntent();
+            if (intent != null)
+                mode = intent.getIntExtra("mode", 0); //Get Game Mode
 
-        Intent intent = getIntent();
-        if(intent != null)
-            mode = intent.getIntExtra("mode",0);
+            if (mode == TYPEGAMES)
+                game = new Game(true);
+            else
+                game = new Game(false);
 
-        if(mode == TYPEGAMES)
-            game = new Game(true);
-        else
-            game = new Game(false);
+            if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
 
-        if(mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
+                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if (networkInfo == null || !(networkInfo.isConnected())) {
+                    Toast.makeText(this, "Error Connection", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
 
-            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if(networkInfo==null || !(networkInfo.isConnected())){
-                Toast.makeText(this,"Error Connection", Toast.LENGTH_LONG).show();
-                finish();
-                return;
+                procMsg = new Handler();
+
             }
 
-            procMsg = new Handler();
-
+        }
+        else{
+            game = (Game) savedInstanceState.getSerializable("SavedGame");
+            mode = (int) savedInstanceState.getInt("Mode");
         }
 
+        buttons();
+
+        refreshTable();
+    }
+
+    private void buttons() {
         sn = -1;
         sl = -1;
 
@@ -166,60 +176,64 @@ public class GameActivity extends Activity {
         homes[7][6] = (ImageButton) findViewById(R.id.h7);
         homes[7][7] = (ImageButton) findViewById(R.id.h8);
 
-        for(int i = 0; i < 8 ; i++){
-            for(int j = 0; j < 8 ; j++){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 homes[i][j].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 homes[i][j].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String str = getResources().getResourceName(view.getId());
-                        int l = str.charAt(str.length()-2) - 'a';
-                        int n = Character.getNumericValue(str.charAt(str.length()-1))-1;
+                String str = getResources().getResourceName(view.getId());
+                int l = str.charAt(str.length() - 2) - 'a';
+                int n = Character.getNumericValue(str.charAt(str.length() - 1)) - 1;
 
-                        if(game.isMyTurn(mode)){
-                            if(sl < 0 || sn < 0){//Se a peça não estiver selecionada
-                                if((!(game.getPeace(l,n) instanceof Empty)) && game.getPeace(l,n).isWhite()==game.isWhiteTurn()){
-                                    view.setBackgroundColor(Color.BLUE);
-                                    sl = l;
-                                    sn = n;
-                                }
-                                else{
-                                    sl = -1;
-                                    sn = -1;
-                                }
-                            }
-                            else{
-                                if(game.getPeace(l,n) instanceof Empty || game.getPeace(l,n).isWhite()!=game.isWhiteTurn()){
-                                    view.setBackgroundColor(Color.RED);
-                                    if(game.doIt(sl,sn,l,n)){
-                                        refreshTable();
-                                        //ENVIA O JOGO DEPOIS DE SER JOGADO!
-                                        sendGame();
-                                    }
-                                    else{
-                                        sl = -1;
-                                        sn = -1;
-                                        refreshTable();
-                                    }
-                                }
-                                else{
-                                    refreshTable();
-                                    view.setBackgroundColor(Color.GREEN);
-                                    sl = l;
-                                    sn = n;
-                                }
-                            }
+                if (game.isMyTurn(mode)) {
+                    if (sl < 0 || sn < 0) {//Se a peça não estiver selecionada
+                        if ((!(game.getPeace(l, n) instanceof Empty)) && game.getPeace(l, n).isWhite() == game.isWhiteTurn()) {
+                            view.setBackgroundColor(Color.BLUE);
+                            sl = l;
+                            sn = n;
+                        } else {
+                            sl = -1;
+                            sn = -1;
                         }
-                        //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
-                        if(game.IsKCheck())
-                            Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (game.getPeace(l, n) instanceof Empty || game.getPeace(l, n).isWhite() != game.isWhiteTurn()) {
+                            view.setBackgroundColor(Color.RED);
+                            if (game.doIt(sl, sn, l, n)) {
+                                refreshTable();
+                                //ENVIA O JOGO DEPOIS DE SER JOGADO!
+                                if(mode >1)
+                                    sendGame();
+                            } else {
+                                sl = -1;
+                                sn = -1;
+                                refreshTable();
+                            }
+                        } else {
+                            refreshTable();
+                            view.setBackgroundColor(Color.GREEN);
+                            sl = l;
+                            sn = n;
+                        }
+                    }
+                }
+                //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
+                if (game.IsKCheck())
+                    Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
 
                     }
                 });
             }
         }
 
-        refreshTable();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("SavedGame", game);
+        outState.putInt("Mode", mode);
     }
 
     @Override
