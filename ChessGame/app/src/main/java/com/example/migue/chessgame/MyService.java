@@ -31,6 +31,7 @@ public class MyService extends Service {
     boolean started = false;
     boolean run = true;
     int temp=-1;
+    int state = -1;
 
     //Rede
     private static final int PORT = 8899;   //Port para rede
@@ -58,33 +59,58 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
         test("onCreate");
+        state = -1;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
         test("onStartCommands");
-        if(!started) {
-            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if (networkInfo == null || !(networkInfo.isConnected())) {
-                //TODO --> Mandar terminar GameActivity
-            }
-            if (intent != null) {
-                mode = intent.getIntExtra("mode", 2);
-            }
-            test("mode = " + mode);
-            started=true;
-            if(mode==2)
-                server();
-            else if(mode==3)
-                clientDlg();
+
+        if (intent != null) {
+            mode = intent.getIntExtra("state", 0);
         }
+
+        if(state ==0){
+            if(!started) {
+                start(intent);
+            }
+        }
+        else if(state == 1){
+
+        }
+
         temp++;
-        if(!task.isAlive())
+        if(!task.isAlive()) {
             task.start();
+        }
 
         return START_STICKY; //START_NOT_STICKY;
+    }
+
+    public void start(Intent intent){
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo == null || !(networkInfo.isConnected())) {
+            //TODO --> Mandar terminar GameActivity
+        }
+        if (intent != null) {
+            mode = intent.getIntExtra("mode", 2);
+        }
+        test("mode = " + mode);
+        started=true;
+        if(mode==2) {
+            server();
+        }
+        else if(mode==3) {
+            clientDlg();
+        }
+    }
+
+    public void send(int var){
+        if(var == 0){
+            
+        }
     }
 
     @Override

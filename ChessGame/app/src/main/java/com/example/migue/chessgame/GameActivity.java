@@ -3,6 +3,7 @@ package com.example.migue.chessgame;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -45,6 +47,12 @@ public class GameActivity extends Activity {
     public static final int TYPEGAMEML = 1; //MultiPlayer One Phone
     public static final int TYPEGAMEMS = 2; //MultiPlayer Rede Server
     public static final int TYPEGAMEMC = 3; //MultiPlayer Rede Cliente
+
+    public static final int RECIVE_GAME = 0;
+    public static final int RECIVE_PROFILE = 1;
+    public static final int RECIVE_DIALOG_CLIENT =2;
+    public static final int RECIVE_DIALOG_SERVER =3;
+
 
     Handler procMsg = null;
     boolean mBound = false;
@@ -86,29 +94,7 @@ public class GameActivity extends Activity {
     protected void onStart() {
         super.onStart();
         if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
-
-                /*
-                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                if (networkInfo == null || !(networkInfo.isConnected())) {
-                    Toast.makeText(this, "Error Connection", Toast.LENGTH_LONG).show();
-                    finish();
-                    return;
-                }
-                */
-/*
-            if (!mBound) {
-                Intent intentServ = new Intent(this, MyService.class);
-                intentServ.putExtra("mode", mode);
-                bindService(intentServ, sc, BIND_AUTO_CREATE);
-            }*/
-
-                Intent intentServ = new Intent(this,MyService.class);
-                intentServ.putExtra("mode",mode);
-                startService(intentServ);
-
-
-            //procMsg = new Handler();
+            send(0);
         }
     }
 
@@ -271,17 +257,43 @@ public class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        /*
-        if(mode==TYPEGAMEMS)
-            server();
+        if(mode==TYPEGAMEMS){
+            //send()
+
+        }
         else if(mode==TYPEGAMEMC)
             clientDlg();
-            */
     }
 
     void sendGame(){
         //this.game;
         //TODO: Falta Ligar com o Serviço
+    }
+
+    void send (int state){
+        Intent intentServ = new Intent(this,MyService.class);
+        intentServ.putExtra("state",state);
+        if(state == 0)
+            intentServ.putExtra("mode",mode);
+        startService(intentServ);
+    }
+
+    private class MyReciver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getIntExtra("Type",0)==RECIVE_GAME){
+                game = (Game) intent.getSerializableExtra("Game");
+            }
+            if(intent.getIntExtra("Type",0)==RECIVE_PROFILE){
+                //game = (Game) intent.getSerializableExtra("Game");
+            }
+            if(intent.getIntExtra("Type",0)==RECIVE_DIALOG_CLIENT){
+
+            }
+            if(intent.getIntExtra("Type",0)==RECIVE_DIALOG_SERVER){
+
+            }
+        }
     }
 
     void refreshTable(){
