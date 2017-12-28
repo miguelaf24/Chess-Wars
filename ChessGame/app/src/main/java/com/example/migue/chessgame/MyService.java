@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,10 +20,12 @@ import com.example.migue.chessgame.Logic.Game;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import static com.example.migue.chessgame.GameActivity.getLocalIpAddress;
+import static java.lang.Integer.parseInt;
 
 public class MyService extends Service {
 
@@ -32,7 +35,7 @@ public class MyService extends Service {
     boolean run = true;
     int temp=-1;
     int state = -1;
-
+    Handler procMsg = null;
     //Rede
     private static final int PORT = 8899;   //Port para rede
     private static final int PORTaux = 9988; // to test with emulators
@@ -68,7 +71,7 @@ public class MyService extends Service {
         test("onStartCommands");
 
         if (intent != null) {
-            mode = intent.getIntExtra("state", 0);
+            state = intent.getIntExtra("state", 0);
         }
 
         if(state ==0){
@@ -77,6 +80,11 @@ public class MyService extends Service {
             }
         }
         else if(state == 1){
+            String ip= intent.getStringExtra("ip");
+            client(ip, PORT);
+        }
+        else if (state==2){
+            sendGame(intent.getStringExtra("game"));
 
         }
 
@@ -99,18 +107,33 @@ public class MyService extends Service {
         }
         test("mode = " + mode);
         started=true;
+
         if(mode==2) {
             server();
         }
         else if(mode==3) {
-            clientDlg();
+
         }
     }
 
-    public void send(int var){
-        if(var == 0){
-            
-        }
+    public void sendGameAct(Game var){
+
+        Intent intent = new Intent();
+        intent.setAction("SENDG");
+
+        intent.putExtra("game", var);
+        sendBroadcast(intent);
+
+    }
+
+    public void sendProf(Object var){
+ //TODO -> enviar profile e definir o tipo de objecto de var
+        Intent intent = new Intent();
+        intent.setAction("SENDG");
+
+       // intent.putExtra("prof", var);
+        sendBroadcast(intent);
+
     }
 
     @Override
@@ -221,8 +244,8 @@ public class MyService extends Service {
                     @Override
                     public void run() {
                         pd.dismiss();
-                        if (socketGame == null)
-                            finish();
+                        //if (socketGame == null)
+                            //finish();
                     }
                 });
             }
@@ -230,26 +253,7 @@ public class MyService extends Service {
         t.start();
     }
 
-    private void clientDlg() {
-        final EditText edtIP = new EditText(this);
-        edtIP.setText("192.168.1.3");
-        AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
-            .setMessage("Server IP")
-            .setView(edtIP)
-            .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                client(edtIP.getText().toString(), PORT);
-                }
-                          })
-            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialogInterface) {
-                    //finish();
-                }
-            }).create();
-        selection.show();
-    }
+
 
     private void client(final String strIP,final int port) {
         Thread t = new Thread(new Runnable() {
@@ -265,7 +269,7 @@ public class MyService extends Service {
                     procMsg.post(new Runnable() {
                         @Override
                         public void run() {
-                            finish();
+                            //finish();
                         }
                     });
                     return;
@@ -284,21 +288,14 @@ public class MyService extends Service {
                 input = new ObjectInputStream(socketGame.getInputStream());
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    game = (Game) input.readObject();
+                    sendGameAct((Game) input.readObject());
                     Log.d("Coms", "Received: game");
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            refreshTable();
-                        }
-                    });
                 }
             } catch (final Exception e) {
                 procMsg.post(new Runnable() {
                     @Override
                     public void run() {
-                        if(game.GameOver()||Thread.currentThread().isInterrupted())
+                       // if(game.GameOver()||Thread.currentThread().isInterrupted())
                     //        finish();
                         //TODO -> VERIFICAR TOAST
                         Log.d("Coms", "Jogo terminou?" + e.toString());

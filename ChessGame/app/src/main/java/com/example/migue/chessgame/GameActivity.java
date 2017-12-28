@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -54,9 +55,9 @@ public class GameActivity extends Activity {
     public static final int RECIVE_DIALOG_SERVER =3;
 
 
-    Handler procMsg = null;
-    boolean mBound = false;
 
+    boolean mBound = false;
+    MyReciver myReceiver;
     public Game game;
     int sl;
     int sn;
@@ -94,8 +95,15 @@ public class GameActivity extends Activity {
     protected void onStart() {
         super.onStart();
         if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
-            send(0);
+            send(0, "");
         }
+
+        myReceiver = new MyReciver();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("SENDG");
+        registerReceiver(myReceiver, intentFilter);
+
     }
 
     @Override
@@ -266,33 +274,61 @@ public class GameActivity extends Activity {
     }
 
     void sendGame(){
-        //this.game;
-        //TODO: Falta Ligar com o Serviço
+
+        send(2, "");
     }
 
-    void send (int state){
+
+    private void clientDlg() {
+        final EditText edtIP = new EditText(this);
+        edtIP.setText("192.168.1.3");
+        AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
+                .setMessage("Server IP")
+                .setView(edtIP)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        send(1, edtIP.getText().toString());
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        //finish();
+                    }
+                }).create();
+        selection.show();
+    }
+
+
+    void send (int state, String data){
         Intent intentServ = new Intent(this,MyService.class);
         intentServ.putExtra("state",state);
-        if(state == 0)
+
+        if (state == 0)
             intentServ.putExtra("mode",mode);
+        if (state ==1)
+            intentServ.putExtra("ip", data);
+        if (state ==2)
+            intentServ.putExtra("game", game);
+
         startService(intentServ);
     }
 
     private class MyReciver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getIntExtra("Type",0)==RECIVE_GAME){
+            if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
-            }
-            if(intent.getIntExtra("Type",0)==RECIVE_PROFILE){
-                //game = (Game) intent.getSerializableExtra("Game");
-            }
-            if(intent.getIntExtra("Type",0)==RECIVE_DIALOG_CLIENT){
+                runOnUiThread(new Runnable() {
 
+                    @Override
+                    public void run() {
+                        refreshTable();
+                    }
+                });
             }
-            if(intent.getIntExtra("Type",0)==RECIVE_DIALOG_SERVER){
 
-            }
         }
     }
 
