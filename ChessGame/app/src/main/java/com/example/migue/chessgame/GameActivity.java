@@ -3,15 +3,18 @@ package com.example.migue.chessgame;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -43,15 +46,8 @@ public class GameActivity extends Activity {
     public static final int TYPEGAMEMS = 2; //MultiPlayer Rede Server
     public static final int TYPEGAMEMC = 3; //MultiPlayer Rede Cliente
 
-    //Rede
-    private static final int PORT = 8899;   //Port para rede
-    private static final int PORTaux = 9988; // to test with emulators
-    ProgressDialog pd = null;
-    ServerSocket serverSocket=null;
-    Socket socketGame = null;
-    ObjectInputStream input;
-    ObjectOutputStream output;
     Handler procMsg = null;
+    boolean mBound = false;
 
     public Game game;
     int sl;
@@ -65,28 +61,15 @@ public class GameActivity extends Activity {
 
         if(savedInstanceState == null) {//se não tem nada guardado!
             //Verifica o modo de jogo enviado
+
             Intent intent = getIntent();
             if (intent != null)
                 mode = intent.getIntExtra("mode", 0); //Get Game Mode
-
             if (mode == TYPEGAMES)
                 game = new Game(true);
             else
                 game = new Game(false);
 
-            if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
-
-                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                if (networkInfo == null || !(networkInfo.isConnected())) {
-                    Toast.makeText(this, "Error Connection", Toast.LENGTH_LONG).show();
-                    finish();
-                    return;
-                }
-
-                procMsg = new Handler();
-
-            }
 
         }
         else{
@@ -97,6 +80,45 @@ public class GameActivity extends Activity {
         buttons();
 
         refreshTable();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
+
+                /*
+                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if (networkInfo == null || !(networkInfo.isConnected())) {
+                    Toast.makeText(this, "Error Connection", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+                */
+/*
+            if (!mBound) {
+                Intent intentServ = new Intent(this, MyService.class);
+                intentServ.putExtra("mode", mode);
+                bindService(intentServ, sc, BIND_AUTO_CREATE);
+            }*/
+
+                Intent intentServ = new Intent(this,MyService.class);
+                intentServ.putExtra("mode",mode);
+                startService(intentServ);
+
+
+            //procMsg = new Handler();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        /*if (mBound) {
+            unbindService(sc);
+            mBound = false;
+        }*/
     }
 
     private void buttons() {
@@ -229,6 +251,16 @@ public class GameActivity extends Activity {
 
     }
 
+    private ServiceConnection sc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBound = true;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            mBound = false;
+        }
+    };
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -239,155 +271,18 @@ public class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        /*
         if(mode==TYPEGAMEMS)
             server();
         else if(mode==TYPEGAMEMC)
             clientDlg();
+            */
     }
 
     void sendGame(){
-
-        final Game gameS= this.game;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d("Coms", "Sending game");
-                    output.writeObject(gameS);
-                    output.flush();
-                } catch (Exception e) {
-                    Log.d("Coms", "Error sending a move" + e);
-                }
-            }
-        });
-        t.start();
-
+        //this.game;
+        //TODO: Falta Ligar com o Serviço
     }
-
-    void server() {
-        String ip = getLocalIpAddress();
-        pd = new ProgressDialog(this);
-        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
-                + ")");
-        pd.setTitle(getString(R.string.servDlgWindowTit));
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                finish();
-                if (serverSocket!=null) {
-                    try {
-                        serverSocket.close();
-                    } catch (IOException e) {
-                    }
-                    serverSocket=null;
-                }
-            }
-        });
-        pd.show();
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    serverSocket = new ServerSocket(PORT);
-                    socketGame = serverSocket.accept();
-                    serverSocket.close();
-                    serverSocket=null;
-                    commThread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    socketGame = null;
-                }
-                procMsg.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        pd.dismiss();
-                       if (socketGame == null)
-                            finish();
-                    }
-                });
-            }
-        });
-        t.start();
-    }
-    private void clientDlg() {
-        final EditText edtIP = new EditText(this);
-        edtIP.setText("192.168.1.3");
-        AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
-                .setMessage("Server IP")
-                .setView(edtIP)
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        client(edtIP.getText().toString(), PORT);
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        finish();
-                    }
-                }).create();
-        selection.show();
-    }
-
-    private void client(final String strIP,final int port) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d("RPS", "Connecting to the server  " + strIP);
-                    socketGame = new Socket(strIP, port);
-                } catch (Exception e) {
-                    socketGame = null;
-                }
-                if (socketGame == null) {
-                    procMsg.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    });
-                    return;
-                }
-                commThread.start();
-            }
-        });
-        t.start();
-    }
-
-    Thread commThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                output = new ObjectOutputStream(socketGame.getOutputStream());
-                input = new ObjectInputStream(socketGame.getInputStream());
-
-                while (!Thread.currentThread().isInterrupted()) {
-                    game = (Game) input.readObject();
-                    Log.d("Coms", "Received: game");
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            refreshTable();
-                        }
-                    });
-                }
-            } catch (final Exception e) {
-                procMsg.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(game.GameOver()||Thread.currentThread().isInterrupted())
-                            finish();
-                        //TODO -> VERIFICAR TOAST
-                        Log.d("Coms", "Jogo terminou?" + e.toString());
-                        finish();
-                    }
-                });
-            }
-        }
-    });
 
     void refreshTable(){
         for(int i = 0; i < 8 ; i++){
