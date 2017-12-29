@@ -39,7 +39,7 @@ public class MyService extends Service {
     //Rede
     private static final int PORT = 8899;   //Port para rede
     private static final int PORTaux = 9988; // to test with emulators
-    ProgressDialog pd = null;
+
     ServerSocket serverSocket=null;
     Socket socketGame = null;
     ObjectInputStream input;
@@ -74,25 +74,24 @@ public class MyService extends Service {
             state = intent.getIntExtra("state", 0);
         }
 
+        test("" + state);
+
         if(state ==0){
+            test("State 0");
             if(!started) {
                 start(intent);
             }
         }
         else if(state == 1){
+            test("State 1");
             String ip= intent.getStringExtra("ip");
             client(ip, PORT);
         }
         else if (state==2){
+            test("State 2");
             sendGame(intent.getStringExtra("game"));
 
         }
-
-        temp++;
-        if(!task.isAlive()) {
-            task.start();
-        }
-
         return START_STICKY; //START_NOT_STICKY;
     }
 
@@ -126,6 +125,16 @@ public class MyService extends Service {
 
     }
 
+    public void flag(int var){
+
+        Intent intent = new Intent();
+        intent.setAction("ServConnection");
+
+        intent.putExtra("flag", var);
+        sendBroadcast(intent);
+
+    }
+
     public void sendProf(Object var){
  //TODO -> enviar profile e definir o tipo de objecto de var
         Intent intent = new Intent();
@@ -151,6 +160,13 @@ public class MyService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         test("onUnbind");
+        if (serverSocket!=null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+            }
+            serverSocket=null;
+        }
         return super.onUnbind(intent);
     }
 
@@ -207,31 +223,14 @@ public class MyService extends Service {
 
 
     public void server() {
-        String ip = getLocalIpAddress();
-        pd = new ProgressDialog(this);
-        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
-                + ")");
-        pd.setTitle(getString(R.string.servDlgWindowTit));
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                //finish();
-                if (serverSocket!=null) {
-                    try {
-                        serverSocket.close();
-                    } catch (IOException e) {
-                    }
-                    serverSocket=null;
-                }
-            }
-        });
-        pd.show();
+
 
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     serverSocket = new ServerSocket(PORT);
+                    test("inicio Socket");
                     socketGame = serverSocket.accept();
                     serverSocket.close();
                     serverSocket=null;
@@ -240,14 +239,8 @@ public class MyService extends Service {
                     e.printStackTrace();
                     socketGame = null;
                 }
-                procMsg.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        pd.dismiss();
-                        //if (socketGame == null)
-                            //finish();
-                    }
-                });
+                test("Send flag???");
+                flag(1);
             }
         });
         t.start();
@@ -266,12 +259,12 @@ public class MyService extends Service {
                     socketGame = null;
                 }
                 if (socketGame == null) {
-                    procMsg.post(new Runnable() {
+                   /* procMsg.post(new Runnable() {
                         @Override
                         public void run() {
                             //finish();
                         }
-                    });
+                    });*/
                     return;
                 }
                 commThread.start();
@@ -292,6 +285,7 @@ public class MyService extends Service {
                     Log.d("Coms", "Received: game");
                 }
             } catch (final Exception e) {
+                /*
                 procMsg.post(new Runnable() {
                     @Override
                     public void run() {
@@ -302,6 +296,7 @@ public class MyService extends Service {
                       //  finish();
                     }
                 });
+                */
             }
         }
     });

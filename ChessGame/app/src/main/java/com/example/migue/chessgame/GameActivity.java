@@ -54,7 +54,7 @@ public class GameActivity extends Activity {
     public static final int RECIVE_DIALOG_CLIENT =2;
     public static final int RECIVE_DIALOG_SERVER =3;
 
-
+    ProgressDialog pd = null;
 
     boolean mBound = false;
     MyReciver myReceiver;
@@ -102,8 +102,8 @@ public class GameActivity extends Activity {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("SENDG");
+        intentFilter.addAction("ServConnection");
         registerReceiver(myReceiver, intentFilter);
-
     }
 
     @Override
@@ -255,6 +255,22 @@ public class GameActivity extends Activity {
         }
     };
 
+    public void server() {
+
+        String ip = getLocalIpAddress();
+        pd = new ProgressDialog(this);
+        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
+                + ")");
+        pd.setTitle(getString(R.string.servDlgWindowTit));
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                unbindService(sc);
+            }
+        });
+        pd.show();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -266,8 +282,8 @@ public class GameActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if(mode==TYPEGAMEMS){
-            //send()
 
+            server();
         }
         else if(mode==TYPEGAMEMC)
             clientDlg();
@@ -327,6 +343,10 @@ public class GameActivity extends Activity {
                         refreshTable();
                     }
                 });
+            }
+            if(intent.getAction().equals("ServConnection")) {
+                int i = (int) intent.getSerializableExtra("flag");
+                pd.dismiss();
             }
 
         }
