@@ -51,5 +51,10 @@ public class Bishop extends Peace  implements Serializable {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "Bishop";
+    }
+
     public String getType(){return "Bishop";}
 }

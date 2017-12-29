@@ -13,4 +13,5 @@
     <string name="NegButDiaLog">Client</string>
     <string name="servDlgWindow">Waiting for a client...</string>
     <string name="servDlgWindowTit">Server</string>
+    <string name="game_finished">Jogo Terminado</string>
 </resources>

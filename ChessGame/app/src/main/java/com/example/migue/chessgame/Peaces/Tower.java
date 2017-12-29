@@ -67,5 +67,11 @@ public class Tower extends Peace implements Serializable {
     }
     public boolean isFirstPlay(){return firstPlay;}
     public String getType(){return "Tower";}
+
+    @Override
+    public String toString() {
+        return "Tower";
+    }
+
     public void setFirstMove(){firstPlay=true;}
 }

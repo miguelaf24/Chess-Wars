@@ -42,5 +42,11 @@ public class King extends Peace implements Serializable {
     }
     public boolean isFirstPlay(){return firstPlay;}
     public void setFirstMove(){firstPlay=true;}
+
+    @Override
+    public String toString() {
+        return "King";
+    }
+
     public String getType(){return "King";}
 }

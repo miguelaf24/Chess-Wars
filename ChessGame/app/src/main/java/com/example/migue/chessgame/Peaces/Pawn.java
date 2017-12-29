@@ -43,4 +43,9 @@ public class Pawn extends Peace implements Serializable {
     public String getType(){return "Pawn";}
     public void setJogadaFirst(int a){jf = a;}
     public int getJogadaFirst(){return jf;}
+
+    @Override
+    public String toString() {
+        return "Pawn";
+    }
 }

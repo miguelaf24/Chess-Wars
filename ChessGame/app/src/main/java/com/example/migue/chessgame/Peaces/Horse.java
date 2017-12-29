@@ -23,5 +23,11 @@ public class Horse extends Peace implements Serializable {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Horse";
+    }
+
     public String getType(){return "Horse";}
 }

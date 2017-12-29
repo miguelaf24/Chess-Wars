@@ -87,5 +87,11 @@ public class Queen extends Peace implements Serializable {
         return false;
     }
 
+
+    @Override
+    public String toString() {
+        return "Queen";
+    }
+
     public String getType(){return "Queen";}
 }

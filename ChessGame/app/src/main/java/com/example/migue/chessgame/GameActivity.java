@@ -55,7 +55,7 @@ public class GameActivity extends Activity {
     public static final int RECIVE_DIALOG_SERVER =3;
 
     ProgressDialog pd = null;
-
+    boolean isConnected=false;
     boolean mBound = false;
     MyReciver myReceiver;
     public Game game;
@@ -84,6 +84,7 @@ public class GameActivity extends Activity {
         else{
             game = (Game) savedInstanceState.getSerializable("SavedGame");
             mode = (int) savedInstanceState.getInt("Mode");
+            isConnected = (boolean) savedInstanceState.getBoolean("Connection");
         }
 
         buttons();
@@ -103,6 +104,8 @@ public class GameActivity extends Activity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("SENDG");
         intentFilter.addAction("ServConnection");
+        intentFilter.addAction("FinishGame");
+
         registerReceiver(myReceiver, intentFilter);
     }
 
@@ -219,7 +222,7 @@ public class GameActivity extends Activity {
                                 refreshTable();
                                 //ENVIA O JOGO DEPOIS DE SER JOGADO!
                                 if(mode >1)
-                                    sendGame();
+                                    send(2, "");
                             } else {
                                 sl = -1;
                                 sn = -1;
@@ -255,20 +258,27 @@ public class GameActivity extends Activity {
         }
     };
 
-    public void server() {
 
-        String ip = getLocalIpAddress();
-        pd = new ProgressDialog(this);
-        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
-                + ")");
-        pd.setTitle(getString(R.string.servDlgWindowTit));
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                unbindService(sc);
-            }
-        });
-        pd.show();
+    public void server() {
+            String ip = getLocalIpAddress();
+            pd = new ProgressDialog(this);
+            pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip + ")");
+            pd.setTitle(getString(R.string.servDlgWindowTit));
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    unbindService(sc);
+                }
+            });
+            pd.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(myReceiver);
+        if(isFinishing())
+            unbindService(sc);
     }
 
     @Override
@@ -276,23 +286,21 @@ public class GameActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable("SavedGame", game);
         outState.putInt("Mode", mode);
+        outState.putBoolean("Connection",isConnected);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(mode==TYPEGAMEMS){
-
-            server();
+        Log.d(">>>>>>>>>>>","connected: "+ isConnected);
+        if(!isConnected) {
+            if (mode == TYPEGAMEMS) {
+                server();
+            } else if (mode == TYPEGAMEMC)
+                clientDlg();
         }
-        else if(mode==TYPEGAMEMC)
-            clientDlg();
     }
 
-    void sendGame(){
-
-        send(2, "");
-    }
 
 
     private void clientDlg() {
@@ -305,15 +313,18 @@ public class GameActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         send(1, edtIP.getText().toString());
+
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        //finish();
+                        finish();
                     }
                 }).create();
         selection.show();
+        //TODO Ver conection
+        isConnected = true;
     }
 
 
@@ -325,8 +336,10 @@ public class GameActivity extends Activity {
             intentServ.putExtra("mode",mode);
         if (state ==1)
             intentServ.putExtra("ip", data);
-        if (state ==2)
+        if (state ==2) {
             intentServ.putExtra("game", game);
+
+        }
 
         startService(intentServ);
     }
@@ -336,17 +349,21 @@ public class GameActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
+                    Log.d("game", ">>>>>>> received");
                         refreshTable();
-                    }
-                });
+
             }
             if(intent.getAction().equals("ServConnection")) {
                 int i = (int) intent.getSerializableExtra("flag");
                 pd.dismiss();
+                isConnected=true;
+                Log.d(">>>>>>>>>>>","connected: "+ isConnected);
+            }
+            if(intent.getAction().equals("FinishGame")) {
+                Toast.makeText(getApplicationContext(),
+                        R.string.game_finished, Toast.LENGTH_LONG)
+                        .show();
+                finish();
             }
 
         }

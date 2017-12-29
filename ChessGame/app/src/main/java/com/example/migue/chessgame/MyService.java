@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static com.example.migue.chessgame.GameActivity.getLocalIpAddress;
 import static java.lang.Integer.parseInt;
 
 public class MyService extends Service {
@@ -81,6 +80,7 @@ public class MyService extends Service {
             if(!started) {
                 start(intent);
             }
+
         }
         else if(state == 1){
             test("State 1");
@@ -89,9 +89,9 @@ public class MyService extends Service {
         }
         else if (state==2){
             test("State 2");
-            sendGame(intent.getStringExtra("game"));
-
+            sendGame(intent.getSerializableExtra("game"));
         }
+
         return START_STICKY; //START_NOT_STICKY;
     }
 
@@ -115,12 +115,14 @@ public class MyService extends Service {
         }
     }
 
+
+
     public void sendGameAct(Game var){
 
         Intent intent = new Intent();
         intent.setAction("SENDG");
 
-        intent.putExtra("game", var);
+        intent.putExtra("Game", var);
         sendBroadcast(intent);
 
     }
@@ -210,15 +212,25 @@ public class MyService extends Service {
             @Override
             public void run() {
                 try {
-                    Log.d("Coms", "Sending game");
+                    Log.d(">>>>>>>>>>>>>>", "Sending game");
                     output.writeObject(gameS);
                     output.flush();
                 } catch (Exception e) {
-                    Log.d("Coms", "Error sending a move" + e);
+                    Log.d(">>>>>>>>>>>>>>", "Error sending a move" + e);
                 }
             }
         });
         t.start();
+    }
+
+    void finishGame(){
+
+        Intent intent = new Intent();
+        intent.setAction("FinishGame");
+
+        intent.putExtra("finish", 0);
+        sendBroadcast(intent);
+
     }
 
 
@@ -259,12 +271,12 @@ public class MyService extends Service {
                     socketGame = null;
                 }
                 if (socketGame == null) {
-                   /* procMsg.post(new Runnable() {
+                   procMsg.post(new Runnable() {
                         @Override
                         public void run() {
                             //finish();
                         }
-                    });*/
+                    });
                     return;
                 }
                 commThread.start();
@@ -281,22 +293,11 @@ public class MyService extends Service {
                 input = new ObjectInputStream(socketGame.getInputStream());
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    sendGameAct((Game) input.readObject());
                     Log.d("Coms", "Received: game");
+                    sendGameAct((Game) input.readObject());
                 }
             } catch (final Exception e) {
-                /*
-                procMsg.post(new Runnable() {
-                    @Override
-                    public void run() {
-                       // if(game.GameOver()||Thread.currentThread().isInterrupted())
-                    //        finish();
-                        //TODO -> VERIFICAR TOAST
-                        Log.d("Coms", "Jogo terminou?" + e.toString());
-                      //  finish();
-                    }
-                });
-                */
+                finishGame();
             }
         }
     });
