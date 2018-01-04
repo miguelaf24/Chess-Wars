@@ -18,11 +18,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Layout;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.migue.chessgame.Logic.Game;
@@ -38,6 +42,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
+
+import static android.R.attr.id;
 
 
 public class GameActivity extends Activity {
@@ -68,6 +74,8 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+
+
         if(savedInstanceState == null) {//se não tem nada guardado!
             //Verifica o modo de jogo enviado
 
@@ -79,13 +87,13 @@ public class GameActivity extends Activity {
             else
                 game = new Game(false);
 
-
+            // TODO: 02/01/2018 Ver Bind Service e chamar por funções -.-' bindService(MyService, 0);
         }
         else{
             game = (Game) savedInstanceState.getSerializable("SavedGame");
             mode = (int) savedInstanceState.getInt("Mode");
         }
-
+        tabSize();
         buttons();
 
         refreshTable();
@@ -107,6 +115,12 @@ public class GameActivity extends Activity {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        tabSize();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         /*if (mBound) {
@@ -115,7 +129,18 @@ public class GameActivity extends Activity {
         }*/
     }
 
+    void tabSize(){
+        LinearLayout l = findViewById(R.id.tab);
+        if(l.getHeight()<l.getWidth())
+            l.getLayoutParams().width =this.getResources().getDisplayMetrics().heightPixels;
+        if(l.getHeight()>l.getWidth())
+            l.getLayoutParams().height =this.getResources().getDisplayMetrics().widthPixels;
+    }
+
     private void buttons() {
+
+
+
         sn = -1;
         sl = -1;
 

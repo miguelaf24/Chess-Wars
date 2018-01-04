@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.migue.chessgame.Peaces.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by migue on 26/11/2017.
@@ -16,6 +17,8 @@ public class Game implements Serializable {
     int nJogada;
     Table table;
 
+    private ArrayList<Jogada> historico;
+
     // Istate state;
 
 
@@ -24,6 +27,7 @@ public class Game implements Serializable {
         this.singleplayer = singleplayer;
         table = new Table();
         nJogada=0;
+        historico = new ArrayList<>();
         //state = new IBeginning(table);
     }
 
@@ -42,6 +46,7 @@ public class Game implements Serializable {
             else if(changePeace(sl,sn,l,n)) {
                 isWhiteTurn = !isWhiteTurn;
                 nJogada++;
+                historico.add(new Jogada(getPeace(l,n),new Posicao(sl,sn),new Posicao(l,n)));
                 verPawnToQueen();
                 if(GameOver()){
                     Log.i("GAME","GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER");

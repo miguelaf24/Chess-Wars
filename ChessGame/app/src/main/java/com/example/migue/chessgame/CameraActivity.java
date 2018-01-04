@@ -32,6 +32,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
@@ -46,9 +47,10 @@ import java.util.List;
 
 
 public class CameraActivity extends Activity {
-
+    private int idC;
     private static final String TAG = "CameraActivity";
     private Button takePictureButton;
+    private ImageButton btnSwitch;
     private TextureView textureView;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -72,6 +74,8 @@ public class CameraActivity extends Activity {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+    private CameraManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +85,19 @@ public class CameraActivity extends Activity {
         textureView.setSurfaceTextureListener(textureListener);
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
         assert takePictureButton != null;
+        btnSwitch = (ImageButton) findViewById(R.id.change_cam);
+        btnSwitch.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Log.d(">>>>>>>>>","Let's Switch");
+                        try {
+                            switchCamera();
+                        } catch (CameraAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,8 +143,7 @@ public class CameraActivity extends Activity {
 
         @Override
         public void onError(CameraDevice camera, int error) {
-            cameraDevice.close();
-            cameraDevice = null;
+            camera.close();
         }
     };
     final CameraCaptureSession.CaptureCallback captureCallbackListener = new CameraCaptureSession.CaptureCallback() {
@@ -205,7 +221,6 @@ public class CameraActivity extends Activity {
                         }
                     }
                 }
-
                 private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
@@ -277,10 +292,10 @@ public class CameraActivity extends Activity {
     }
 
     private void openCamera() {
-        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         Log.e(TAG, "is camera open");
         try {
-            cameraId = manager.getCameraIdList()[0];
+            cameraId = manager.getCameraIdList()[idC];
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
@@ -318,6 +333,33 @@ public class CameraActivity extends Activity {
             imageReader = null;
         }
     }
+
+    public void switchCamera() throws CameraAccessException {
+        Log.d(">>>>>>>>>","Let's Switch");
+        if (cameraId.equals("0")) {
+            idC=1;
+            closeCamera();
+            reopenCamera();
+        } else if (cameraId.equals("1")) {
+            idC=0;
+            closeCamera();
+            reopenCamera();
+        }
+    }
+
+    public void reopenCamera() {
+        Log.d(">>>>>>>>>","Let's Reopen");
+
+        if (textureView.isAvailable()) {
+            openCamera();
+            Log.d(">>>>>>>>>","Let's Open");
+
+        } else {
+            textureView.setSurfaceTextureListener(textureListener);
+            Log.d(">>>>>>>>>","Let's MERDAAAAA!!!!");
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
@@ -330,6 +372,7 @@ public class CameraActivity extends Activity {
     }
     @Override
     protected void onResume() {
+        idC=1;
         super.onResume();
         Log.e(TAG, "onResume");
         startBackgroundThread();

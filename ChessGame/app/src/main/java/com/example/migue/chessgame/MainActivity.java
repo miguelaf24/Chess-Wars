@@ -14,7 +14,7 @@ import android.widget.Button;
 public class MainActivity extends Activity {
 
     Button bPlay;
-    Button bPhoto;
+    Button bProfile;
     Intent intent;
     Context context = this;
 
@@ -36,19 +36,17 @@ bPlay = (Button) findViewById(R.id.bPlay);
             @Override
             public void onClick(View view) {
                 intent = new Intent(context, TypeGameActivity.class);
-
                 startActivity(intent);
             }
         });
 
-        bPhoto = (Button) findViewById(R.id.btnCapture);
+        bProfile = (Button) findViewById(R.id.btnCapture);
 
-        bPhoto.setOnClickListener(new View.OnClickListener(){
+        bProfile.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View view) {
-                intent = new Intent(context, CameraActivity.class);
-
+                intent = new Intent(context, ProfileActivity.class);
                 startActivity(intent);
             }
         });

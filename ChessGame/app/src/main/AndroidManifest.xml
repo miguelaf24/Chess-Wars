@@ -31,7 +31,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".CameraActivity" />
-        <activity android:name=".GameActivity" />
+        <activity android:name=".GameActivity"
+            android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".TypeGameActivity" />
 
         <service
@@ -39,7 +40,9 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".HistoryActivity" />
+        <activity android:name=".History2Activity"></activity>
     </application>
 
 </manifest>

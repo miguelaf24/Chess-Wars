@@ -53,6 +53,7 @@ public class MyService extends Service {
             return 1;
         }
 
+        // TODO: 03/01/2018 Ver Para Apagar ou não 
         MyService get() {
             return MyService.this;
         }
