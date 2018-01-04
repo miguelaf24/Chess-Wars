@@ -67,6 +67,7 @@ public class GameActivity extends Activity {
     public Game game;
     int sl;
     int sn;
+    int time;
 
     ImageButton homes[][] = new ImageButton[8][8];
     @Override
@@ -80,12 +81,19 @@ public class GameActivity extends Activity {
             //Verifica o modo de jogo enviado
 
             Intent intent = getIntent();
+
             if (intent != null)
                 mode = intent.getIntExtra("mode", 0); //Get Game Mode
-            if (mode == TYPEGAMES)
-                game = new Game(true);
-            else
-                game = new Game(false);
+            if (mode == TYPEGAMES) {
+                game = new Game(true, -1);
+                time = -1;
+            }
+            else{
+                int temp =intent.getIntExtra("Time", -1);
+                if(temp <= 0) temp = -1;
+                game = new Game(false,temp);
+            }
+
 
             // TODO: 02/01/2018 Ver Bind Service e chamar por funções -.-' bindService(MyService, 0);
         }

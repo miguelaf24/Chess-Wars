@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.migue.chessgame.Peaces.*;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.ArrayList;
 
 /**
@@ -16,19 +17,26 @@ public class Game implements Serializable {
     boolean isWhiteTurn;
     int nJogada;
     Table table;
+    int time;
 
     private ArrayList<Jogada> historico;
 
     // Istate state;
 
 
-    public Game(boolean singleplayer) {
+    public Game(boolean singleplayer, int time) {
+        this.time = time;
         isWhiteTurn = true;
         this.singleplayer = singleplayer;
+
         table = new Table();
         nJogada=0;
         historico = new ArrayList<>();
         //state = new IBeginning(table);
+    }
+
+    public int getTime() {
+        return time;
     }
 
     public boolean isWhiteTurn() {
