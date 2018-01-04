@@ -9,11 +9,14 @@ public class Profile {
 
     byte[] Photo;
 
-    public Profile(byte[] photo, String name) {
-        Photo = photo;
+    public Profile( String name) {
+
         this.name = name;
     }
-
+    public Profile(){
+        name=null;
+        Photo=null;
+    };
     public byte[] getPhoto() {
         return Photo;
     }
@@ -29,4 +32,8 @@ public class Profile {
     public void setName(String name) {
         this.name = name;
     }
+
+
+
+
 }

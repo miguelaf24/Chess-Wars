@@ -21,6 +21,8 @@
             android:layout_weight="1"
             android:id="@+id/image"
             android:src="@drawable/king_b"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
             />
 
         <EditText

@@ -8,8 +8,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.example.migue.chessgame.Logic.GlobalProfile;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity {
 
@@ -28,6 +35,30 @@ public class MainActivity extends Activity {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     2501);
+            GlobalProfile globalProfile= (GlobalProfile) getApplicationContext();
+            if (globalProfile.readProfileFromSharedPreferences().getName() == null) {
+                Log.e(">>>>>>>>>>>", "NO profile name dude");
+                Toast.makeText(this,"Please create a profile.", Toast.LENGTH_SHORT).show();
+
+                int timeout = 1000; // make the activity visible for 4 seconds
+
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+
+                        finish();
+                        Intent homepage = new Intent(MainActivity.this, ProfileActivity.class);
+
+                        startActivity(homepage);
+                    }
+                }, timeout);
+
+
+
+
+            }
         }
 
 bPlay = (Button) findViewById(R.id.bPlay);

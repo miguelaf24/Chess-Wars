@@ -5,6 +5,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -25,6 +27,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.IntDef;
 import android.support.v4.app.ActivityCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -35,6 +38,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.migue.chessgame.Logic.GlobalProfile;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -73,7 +79,7 @@ public class CameraActivity extends Activity {
     private boolean mFlashSupported;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
-
+    GlobalProfile globalProfile;
     private CameraManager manager;
 
     @Override
@@ -104,6 +110,8 @@ public class CameraActivity extends Activity {
                 takePicture();
             }
         });
+        globalProfile = (GlobalProfile) getApplicationContext();
+
     }
 
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
@@ -152,6 +160,7 @@ public class CameraActivity extends Activity {
             super.onCaptureCompleted(session, request, result);
             Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
             createCameraPreview();
+
         }
     };
 
@@ -191,16 +200,26 @@ public class CameraActivity extends Activity {
                 height = jpegSizes[0].getHeight();
             }
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
+
             List<Surface> outputSurfaces = new ArrayList<Surface>(2);
+
             outputSurfaces.add(reader.getSurface());
+
             outputSurfaces.add(new Surface(textureView.getSurfaceTexture()));
+
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+
             captureBuilder.addTarget(reader.getSurface());
+
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
             // Orientation
+
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+
             final File file = new File(Environment.getExternalStorageDirectory() + "/pic.jpg");
+
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -210,25 +229,10 @@ public class CameraActivity extends Activity {
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
-                        save(bytes);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                            globalProfile.savePhoto(bytes);
                     } finally {
                         if (image != null) {
                             image.close();
-                        }
-                    }
-                }
-                private void save(byte[] bytes) throws IOException {
-                    OutputStream output = null;
-                    try {
-                        output = new FileOutputStream(file);
-                        output.write(bytes);
-                    } finally {
-                        if (null != output) {
-                            output.close();
                         }
                     }
                 }
