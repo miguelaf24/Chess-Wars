@@ -16,8 +16,6 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
 
-
-
     <application
         android:name=".Logic.GlobalProfile"
         android:allowBackup="true"
@@ -34,8 +32,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".CameraActivity" />
-        <activity android:name=".GameActivity"
-            android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity
+            android:name=".GameActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name=".TypeGameActivity" />
 
         <service
@@ -45,7 +44,8 @@
 
         <activity android:name=".ProfileActivity" />
         <activity android:name=".HistoryActivity" />
-        <activity android:name=".History2Activity"></activity>
+        <activity android:name=".History2Activity" />
+
     </application>
 
 </manifest>

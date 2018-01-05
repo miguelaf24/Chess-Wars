@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -87,9 +89,12 @@ public class TypeGameActivity extends Activity {
     void time(final int type){
         final EditText edt = new EditText(this);
         edt.setText("0");
+        edt.setSelectAllOnFocus(true);
+
+        edt.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         // TODO: 04/01/2018 Meter para apenas receber numeros
         AlertDialog selection = new AlertDialog.Builder(this).setTitle("asd")
-                .setMessage("Insira o tempo do relógio: (Valores > 0)")
+                .setMessage("Insira o tempo do relógio:(Valores > 0)")
                 .setView(edt)
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
@@ -107,6 +112,7 @@ public class TypeGameActivity extends Activity {
                     public void onCancel(DialogInterface dialogInterface) {
                     }
                 }).create();
+        selection.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         selection.show();
     }
 }

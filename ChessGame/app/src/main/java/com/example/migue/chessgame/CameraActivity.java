@@ -195,10 +195,12 @@ public class CameraActivity extends Activity {
             }
             int width = 640;
             int height = 480;
+
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
             }
+
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
 
             List<Surface> outputSurfaces = new ArrayList<Surface>(2);

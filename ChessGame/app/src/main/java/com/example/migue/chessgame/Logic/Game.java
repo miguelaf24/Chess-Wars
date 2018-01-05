@@ -1,6 +1,7 @@
 package com.example.migue.chessgame.Logic;
 
 import android.util.Log;
+import android.widget.EditText;
 
 import com.example.migue.chessgame.Peaces.*;
 
@@ -18,6 +19,7 @@ public class Game implements Serializable {
     int nJogada;
     Table table;
     int time;
+
 
     private ArrayList<Jogada> historico;
 
@@ -42,6 +44,8 @@ public class Game implements Serializable {
     public boolean isWhiteTurn() {
         return isWhiteTurn;
     }
+
+
 
     public boolean doIt(int sl, int sn, int l, int n) {
 
