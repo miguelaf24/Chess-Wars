@@ -259,45 +259,44 @@ public class GameActivity extends Activity {
                 homes[i][j].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                String str = getResources().getResourceName(view.getId());
-                int l = str.charAt(str.length() - 2) - 'a';
-                int n = Character.getNumericValue(str.charAt(str.length() - 1)) - 1;
+                        String str = getResources().getResourceName(view.getId());
+                        int l = str.charAt(str.length() - 2) - 'a';
+                        int n = Character.getNumericValue(str.charAt(str.length() - 1)) - 1;
 
-                if (game.isMyTurn(mode)) {
-                    if (sl < 0 || sn < 0) {//Se a peça não estiver selecionada
-                        if ((!(game.getPeace(l, n) instanceof Empty)) && game.getPeace(l, n).isWhite() == game.isWhiteTurn()) {
-                            view.setBackgroundColor(Color.BLUE);
-                            sl = l;
-                            sn = n;
-                        } else {
-                            sl = -1;
-                            sn = -1;
-                        }
-                    } else {
-                        if (game.getPeace(l, n) instanceof Empty || game.getPeace(l, n).isWhite() != game.isWhiteTurn()) {
-                            view.setBackgroundColor(Color.RED);
-                            if (game.doIt(sl, sn, l, n)) {
-                                refreshTable();
-                                //ENVIA O JOGO DEPOIS DE SER JOGADO!
-                                if(mode >1)
-                                    sendGame();
+                        if (game.isMyTurn(mode)) {
+                            if (sl < 0 || sn < 0) {//Se a peça não estiver selecionada
+                                if ((!(game.getPeace(l, n) instanceof Empty)) && game.getPeace(l, n).isWhite() == game.isWhiteTurn()) {
+                                    view.setBackgroundColor(Color.BLUE);
+                                    sl = l;
+                                    sn = n;
+                                } else {
+                                    sl = -1;
+                                    sn = -1;
+                                }
                             } else {
-                                sl = -1;
-                                sn = -1;
-                                refreshTable();
+                                if (game.getPeace(l, n) instanceof Empty || game.getPeace(l, n).isWhite() != game.isWhiteTurn()) {
+                                    view.setBackgroundColor(Color.RED);
+                                    if (game.doIt(sl, sn, l, n)) {
+                                        refreshTable();
+                                        //ENVIA O JOGO DEPOIS DE SER JOGADO!
+                                        if (mode > 1)
+                                            sendGame();
+                                    } else {
+                                        sl = -1;
+                                        sn = -1;
+                                        refreshTable();
+                                    }
+                                } else {
+                                    refreshTable();
+                                    view.setBackgroundColor(Color.GREEN);
+                                    sl = l;
+                                    sn = n;
+                                }
                             }
-                        } else {
-                            refreshTable();
-                            view.setBackgroundColor(Color.GREEN);
-                            sl = l;
-                            sn = n;
                         }
-                    }
-                }
-                //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
-                if (game.IsKCheck())
-                    Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
-
+                        //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
+                        if (game.IsKCheck())
+                            Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
