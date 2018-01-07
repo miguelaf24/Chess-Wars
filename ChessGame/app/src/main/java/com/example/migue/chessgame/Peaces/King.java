@@ -5,7 +5,7 @@ import com.example.migue.chessgame.Logic.Table;
 import java.io.Serializable;
 
 /**
- * Created by migue on 27/11/2017.
+ * Created by miguel on 27/11/2017.
  */
 
 public class King extends Peace implements Serializable {
