@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Star Chess Wars</string>
-    <string name="play">Jogar</string>
-    <string name="Historico">Histórico</string>
+    <string name="play">Play</string>
+    <string name="Historico">History</string>
     <string name="mExit">Exit</string>
     <string name="title">Star Wars Chess</string>
     <string name="networkMult">Multiplayer (Network)</string>
@@ -13,4 +13,11 @@
     <string name="NegButDiaLog">Client</string>
     <string name="servDlgWindow">Waiting for a client...</string>
     <string name="servDlgWindowTit">Server</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="PvsP">Player1 vs Player2</string>
+    <string name="perf">Profile</string>
+    <string name="LooseGames">Losed games:</string>
+    <string name="winGames">Winned Games:</string>
+    <string name="MultGames">Multiplayer Games:</string>
+    <string name="PlayedG">Played Games:</string>
 </resources>

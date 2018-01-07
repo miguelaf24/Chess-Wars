@@ -48,28 +48,28 @@
             android:layout_weight="1"
             >
             <TextView
-                android:text="Jogos Jogados:"
+                android:text="@string/PlayedG"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
             <TextView
-                android:text="Jogos Multiplayer:"
+                android:text="@string/MultGames"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
             <TextView
-                android:text="Jogos Ganhos:"
+                android:text="@string/winGames"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
             <TextView
-                android:text="Jogos Perdidos:"
+                android:text="@string/LooseGames"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

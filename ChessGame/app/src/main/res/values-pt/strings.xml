@@ -1,0 +1,23 @@
+<resources>
+<string name="app_name">Star Chess Wars</string>
+<string name="play">Jogar</string>
+<string name="Historico">Histórico</string>
+<string name="mExit">Sair</string>
+<string name="title">Star Wars Chess</string>
+<string name="networkMult">MultiJogador (Rede)</string>
+<string name="localMult">MultiJogador (Local)</string>
+<string name="playSolo">Jogar sozinho</string>
+<string name="AlertDialogTitleS">Servidor/Cliente</string>
+<string name="ChoseDialogSelMes">Escolha uma das opções:</string>
+<string name="PosButDialog">Servidor</string>
+<string name="NegButDiaLog">Cliente</string>
+<string name="servDlgWindow">Aguardando um cliente...</string>
+<string name="servDlgWindowTit">Servidor</string>
+<string name="take_photo">Tirar foto</string>
+<string name="PvsP">Jogador1 vs Jogador2</string>
+<string name="perf">Perfil</string>
+<string name="LooseGames">Jogos Perdidos:</string>
+<string name="winGames">Jogos Ganhos:</string>
+<string name="MultGames">Jogos em Rede:</string>
+<string name="PlayedG">Jogos jogados:</string>
+</resources>

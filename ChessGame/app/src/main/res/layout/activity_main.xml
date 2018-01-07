@@ -59,7 +59,7 @@
             android:background="@color/colorBlackGrey"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="Perfil"
+            android:text="@string/perf"
             android:id="@+id/btnCapture"
             android:textColor="@android:color/white"
             android:typeface="monospace"
