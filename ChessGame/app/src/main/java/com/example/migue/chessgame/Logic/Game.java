@@ -20,6 +20,8 @@ public class Game implements Serializable {
     Table table;
     int time, bestMove;
     private ArrayList<JogadaIA> jogadasIA;
+    private ArrayList<Peace> blackP;
+    private ArrayList<Peace> whiteP;
     int levelIA = 3;
 
     private ArrayList<Jogada> historico;
@@ -173,40 +175,85 @@ public class Game implements Serializable {
         bestMove = -2000;
         //Table tableIA = table;
         isWhiteTurn = true;
-        Jogada jIA = firstIA(levelIA,jogadasIA);
-        changePeace(jIA.inicial.getX(),jIA.inicial.getY(),jIA.Final.getX(),jIA.Final.getY());
+        ArrayList<JogadaIA> jIA = firstIA(levelIA,null);
+        changePeace(jIA.get(jIA.size()-1).getJogada().inicial.getX(),jIA.get(jIA.size()-1).getJogada().inicial.getY(),jIA.get(jIA.size()-1).getJogada().Final.getX(),jIA.get(jIA.size()-1).getJogada().Final.getY());
         isWhiteTurn = true;
     }
 
-    Jogada firstIA(int lvl, ArrayList<JogadaIA> jogadaIA){
-        ArrayList<JogadaIA> jogadasIAtemp = new ArrayList<>();
+    ArrayList<JogadaIA> firstIA(int lvl, ArrayList<JogadaIA> jogadaIA){
+        ArrayList<JogadaIA> jogadasIAtemp = jogadaIA;
+        ArrayList<Peace> blackPeaces = table.getlista().black;
+        ArrayList<Peace> whitePeaces = table.getlista().white;
+        Table tempTable = table;
+
         Jogada jIA = null;
         int maxPoints = -9999;
-        Table tempTable = table;
-        for (int i = 0; i < table.getlista().black.size(); i++) {
-            int thisJPoints =-9999;
-            while (thisJPoints>-10000) {
-                JogadaIA jAux = tryJogadaIA(table.getlista().black.get(i).getL(), table.getlista().black.get(i).getN(), lvl, true);
-                thisJPoints = jAux.getPoints();
-                if (lvl == levelIA)
-                    jogadasIA.add(jAux);
-                else
-                    jogadasIAtemp.add(jAux);
-                table = tempTable;
+
+        if(jogadaIA==null){
+            for (int i = 0; i < table.getlista().black.size(); i++) {
+                int tentativa = 0;
+                while(true){
+                    Jogada jAux = tryIAJogada(table.getlista().black.get(i).getL(), table.getlista().black.get(i).getN(), lvl, true);
+                    // TODO: 06/01/2018 change tryIAJogada para retornar todas as Jogadas da peça
+                    if(jAux==null)
+                        break;
+                    else
+                        tentativa++;
+                    int points = getPoints(table, true);
+                    if(points >= maxPoints){
+                        jogadasIAtemp.add(new JogadaIA(jAux, getPoints(table, true)));
+                        maxPoints = points;
+                    }
+                    reporIA(tempTable,whitePeaces,blackPeaces);
+                }
+
             }
         }
-        /*
-        jIA =
-        ia(--lvl,table,true);
-        */
-        if(levelIA == lvl){
-            for(int i = 0; i<jogadasIA.size();i++){
-                if(jogadaIA.get(i).getPoints()<maxPoints) {
-                    jogadaIA.remove(i--);
+        else{
+            for(int j = 0; j < jogadasIAtemp.size() ; j++) {
+                Jogada jogada = jogadasIAtemp.get(j).getJogada();
+                changePeace(jogada.inicial.getX(),jogada.inicial.getY(),jogada.Final.getX(),jogada.Final.getY());
+
+                if (isWhiteTurn) {
+                    for (int i = 0; i < table.getlista().white.size(); i++) {
+                        Jogada jAux = tryIAJogada(table.getlista().white.get(i).getL(), table.getlista().white.get(i).getN(), lvl, true);
+                        int points = getPoints(table, true) + jogadasIAtemp.get(j).getPoints();
+                        if (points > maxPoints) {
+                            maxPoints = points;
+                            jogadasIAtemp.get(j).addPoints(points);
+                        }
+                        reporIA(tempTable, whitePeaces, blackPeaces);
+                    }
+                } else {
+                    for (int i = 0; i < table.getlista().black.size(); i++) {
+                        Jogada jAux = tryIAJogada(table.getlista().black.get(i).getL(), table.getlista().black.get(i).getN(), lvl, true);
+                        int points = getPoints(table, true) + jogadasIAtemp.get(j).getPoints();
+                        if (points > maxPoints) {
+                            maxPoints = points;
+                            jogadasIAtemp.get(j).addPoints(points);
+                        }
+                        reporIA(tempTable, whitePeaces, blackPeaces);
+                    }
                 }
             }
         }
-        return jIA;
+        for(int i = 0; i<jogadasIAtemp.size();i++){
+            if(jogadaIA.get(i).getPoints()<maxPoints){
+                jogadasIAtemp.remove(i--);
+            }
+        }
+
+        if(lvl>0)
+            return firstIA(lvl, jogadasIAtemp);
+        return jogadasIAtemp;
+    }
+
+    private void reporIA(Table tempTable, ArrayList<Peace> whitePeaces, ArrayList<Peace> blackPeaces) {
+        table=tempTable;
+        table.getlista().white.clear();
+        table.getlista().white = whitePeaces;
+        table.getlista().black.clear();
+        table.getlista().black = blackPeaces;
     }
 
     private Jogada tryIAJogada(int l, int n, int level, boolean IAturn) {
