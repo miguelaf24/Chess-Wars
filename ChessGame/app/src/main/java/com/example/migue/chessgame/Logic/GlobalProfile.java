@@ -8,9 +8,10 @@ import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 
 
-public class GlobalProfile extends Application {
+public class GlobalProfile extends Application implements Serializable {
 
     private static final String PREFS_PROFILE_NAME = "PREFS_PROFILE_NAME";
     private static final String PREFS_PROFILE_PHOTO = "PREFS_PROFILE_PHOTO";

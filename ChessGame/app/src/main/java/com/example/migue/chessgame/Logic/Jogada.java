@@ -2,11 +2,13 @@ package com.example.migue.chessgame.Logic;
 
 import com.example.migue.chessgame.Peaces.Peace;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 29/12/2017.
  */
 
-public class Jogada {
+public class Jogada implements Serializable {
     Peace p;
     Posicao inicial, Final;
 

@@ -1,10 +1,12 @@
 package com.example.migue.chessgame.Logic;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 06/01/2018.
  */
 
-public class JogadaIA {
+public class JogadaIA implements Serializable{
     Jogada jogada;
     int points;
 
