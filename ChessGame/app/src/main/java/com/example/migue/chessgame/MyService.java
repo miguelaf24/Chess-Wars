@@ -176,9 +176,9 @@ public class MyService extends Service {
         super.onDestroy();
 
         run=false;
-        if (task.isAlive())
+        if (commThread.isAlive())
             try {
-                task.join();
+                commThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -189,22 +189,6 @@ public class MyService extends Service {
         Log.d(">>>>>>>>>", "Service: " + str);
     }
 
-
-    Thread task = new Thread(new Runnable() {
-        @Override
-        public void run() {
-
-            while (run) {
-                try {
-                    Thread.sleep(500);
-                    test(temp+"n");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            stopSelf();
-        }
-    });
 
     public void sendGame(final Object gameS){
         Thread t = new Thread(new Runnable() {

@@ -1,10 +1,12 @@
 package com.example.migue.chessgame.Logic;
 
+import java.io.Serializable;
+
 /**
  * Created by migue on 03/01/2018.
  */
 
-public class Profile {
+public class Profile implements Serializable{
     String name;
 
     byte[] Photo;

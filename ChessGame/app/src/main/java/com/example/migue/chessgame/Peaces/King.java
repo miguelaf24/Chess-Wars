@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 public class King extends Peace implements Serializable {
     boolean firstPlay;
+    int value =1000;
     public King(boolean isWhite, int l, int n) {
         super(isWhite,l,n);
         firstPlay=true;
@@ -39,6 +40,9 @@ public class King extends Peace implements Serializable {
             }
         }
         return false;
+    }
+    public int getValue() {
+        return value;
     }
     public boolean isFirstPlay(){return firstPlay;}
     public void setFirstMove(){firstPlay=true;}

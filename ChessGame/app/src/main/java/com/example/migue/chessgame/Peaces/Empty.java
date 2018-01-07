@@ -19,4 +19,7 @@ public class Empty extends Peace implements Serializable {
     }
     public String getType(){return "Empty";}
 
+    public int getValue() {
+        return 0;
+    }
 }

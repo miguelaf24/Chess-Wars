@@ -13,6 +13,8 @@ public class Bishop extends Peace  implements Serializable {
         super(isWhite,l,n);
     }
 
+    int value=3;
+
     @Override
     public boolean action(Table table ,int l, int n) {
         int auxl, auxn;
@@ -49,6 +51,10 @@ public class Bishop extends Peace  implements Serializable {
             }
 
         return false;
+    }
+
+    public int getValue() {
+        return value;
     }
 
     public String getType(){return "Bishop";}

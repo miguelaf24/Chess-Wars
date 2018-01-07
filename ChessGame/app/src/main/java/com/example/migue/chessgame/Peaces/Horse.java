@@ -12,7 +12,7 @@ public class Horse extends Peace implements Serializable {
     public Horse(boolean isWhite, int l, int n) {
         super(isWhite,l,n);
     }
-
+    int value = 3;
     @Override
     public boolean action(Table table ,int l, int n) {
         if(table.getPeace(l,n) instanceof Empty || table.getPeace(l,n).isWhite()!=isWhite){
@@ -23,5 +23,10 @@ public class Horse extends Peace implements Serializable {
 
         return false;
     }
+
+    public int getValue() {
+        return value;
+    }
+
     public String getType(){return "Horse";}
 }

@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class Pawn extends Peace implements Serializable {
     boolean firstPlay;
     int jf;
+    int value = 1;
     public Pawn(boolean isWhite, int l, int n) {
         super(isWhite,l,n); firstPlay=true; jf=-2;}
 
@@ -37,6 +38,9 @@ public class Pawn extends Peace implements Serializable {
             }
         }
         return false;
+    }
+    public int getValue() {
+        return value;
     }
     public boolean isFirstPlay(){return firstPlay;}
     public void setFirstMove(){firstPlay=true;}

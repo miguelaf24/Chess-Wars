@@ -12,22 +12,31 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
+
         <ImageView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:background="#606060"/>
+            android:background="#606060" />
 
         <TextView
             android:id="@+id/p2"
             android:layout_width="0dp"
-            android:gravity="center_vertical"
             android:layout_height="match_parent"
-            android:layout_weight="5"
-            android:text="Player2"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
             android:padding="20dp"
-            />
+            android:text="Player2" />
+        <TextView
+            android:id="@+id/timep2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:text="" />
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/tab"
         android:layout_width="match_parent"
@@ -709,8 +718,16 @@
             android:layout_width="0dp"
             android:gravity="center_vertical"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="3"
             android:text="Player1"
             android:padding="20dp"/>
+        <TextView
+            android:id="@+id/timep1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:text="" />
     </LinearLayout>
 </LinearLayout>

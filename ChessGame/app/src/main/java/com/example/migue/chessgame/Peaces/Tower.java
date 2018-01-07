@@ -12,10 +12,17 @@ import java.io.Serializable;
 
 public class Tower extends Peace implements Serializable {
     boolean firstPlay;
+
+    int value = 7;
+
     public Tower(boolean isWhite, int l, int n) {
 
         super(isWhite,l,n);
         firstPlay=true;
+    }
+
+    public int getValue() {
+        return value;
     }
 
     @Override

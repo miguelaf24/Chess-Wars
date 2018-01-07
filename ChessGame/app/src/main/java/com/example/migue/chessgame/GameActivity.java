@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.migue.chessgame.Logic.Game;
@@ -67,31 +68,63 @@ public class GameActivity extends Activity {
     public Game game;
     int sl;
     int sn;
+    int time,sec1,min1,sec2,min2;
 
+    TextView edtTimeP1;
+    TextView edtTimeP2;
     ImageButton homes[][] = new ImageButton[8][8];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-
+        edtTimeP1 = (TextView) findViewById(R.id.timep1);
+        edtTimeP2 = (TextView) findViewById(R.id.timep2);
 
         if(savedInstanceState == null) {//se não tem nada guardado!
             //Verifica o modo de jogo enviado
 
             Intent intent = getIntent();
+
             if (intent != null)
                 mode = intent.getIntExtra("mode", 0); //Get Game Mode
-            if (mode == TYPEGAMES)
-                game = new Game(true);
-            else
-                game = new Game(false);
+            if (mode == TYPEGAMES) {
+                game = new Game(true, -1);
+                time = -1;
+            }
+            else{
+                time =intent.getIntExtra("Time", -1);
+                min1=min2=time;
+                sec1=sec2=0;
+                if(time <= 0)
+                    time = -1;
+                game = new Game(false,time);
+                if(time>0){
+                    showTimeP1(min1,sec1);
+                    showTimeP2(min2,sec2);
+                    if(mode==TYPEGAMEML){
+                        tTime.start();
+                    }
+                }
+            }
+
 
             // TODO: 02/01/2018 Ver Bind Service e chamar por funções -.-' bindService(MyService, 0);
         }
         else{
             game = (Game) savedInstanceState.getSerializable("SavedGame");
             mode = (int) savedInstanceState.getInt("Mode");
+            time = (int) savedInstanceState.getInt("Time");
+            if(time>0){
+                min1 = (int) savedInstanceState.getInt("M1");
+                sec1 = (int) savedInstanceState.getInt("S1");
+                min2 = (int) savedInstanceState.getInt("M2");
+                sec2 = (int) savedInstanceState.getInt("S2");
+                showTimeP1(min1,sec1);
+                showTimeP2(min2,sec2);
+                tTime.start();
+            }
         }
         tabSize();
         buttons();
@@ -104,14 +137,16 @@ public class GameActivity extends Activity {
         super.onStart();
         if (mode == TYPEGAMEMS || mode == TYPEGAMEMC) {
             send(0, "");
+
+            myReceiver = new MyReciver();
+
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("SENDG");
+            intentFilter.addAction("ServConnection");
+            registerReceiver(myReceiver, intentFilter);
         }
 
-        myReceiver = new MyReciver();
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("SENDG");
-        intentFilter.addAction("ServConnection");
-        registerReceiver(myReceiver, intentFilter);
     }
 
     @Override
@@ -131,14 +166,15 @@ public class GameActivity extends Activity {
 
     void tabSize(){
         LinearLayout l = findViewById(R.id.tab);
-        if(l.getHeight()<l.getWidth())
-            l.getLayoutParams().width =this.getResources().getDisplayMetrics().heightPixels;
-        if(l.getHeight()>l.getWidth())
-            l.getLayoutParams().height =this.getResources().getDisplayMetrics().widthPixels;
+        int widthDisp=this.getResources().getDisplayMetrics().widthPixels;
+        int heightDisp =this.getResources().getDisplayMetrics().heightPixels;
+        if(widthDisp<heightDisp)
+            l.setLayoutParams(new LinearLayout.LayoutParams(widthDisp,widthDisp));
+        else
+            l.setLayoutParams(new LinearLayout.LayoutParams(heightDisp,heightDisp));
     }
 
     private void buttons() {
-
 
 
         sn = -1;
@@ -223,51 +259,114 @@ public class GameActivity extends Activity {
                 homes[i][j].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                String str = getResources().getResourceName(view.getId());
-                int l = str.charAt(str.length() - 2) - 'a';
-                int n = Character.getNumericValue(str.charAt(str.length() - 1)) - 1;
+                        String str = getResources().getResourceName(view.getId());
+                        int l = str.charAt(str.length() - 2) - 'a';
+                        int n = Character.getNumericValue(str.charAt(str.length() - 1)) - 1;
 
-                if (game.isMyTurn(mode)) {
-                    if (sl < 0 || sn < 0) {//Se a peça não estiver selecionada
-                        if ((!(game.getPeace(l, n) instanceof Empty)) && game.getPeace(l, n).isWhite() == game.isWhiteTurn()) {
-                            view.setBackgroundColor(Color.BLUE);
-                            sl = l;
-                            sn = n;
-                        } else {
-                            sl = -1;
-                            sn = -1;
-                        }
-                    } else {
-                        if (game.getPeace(l, n) instanceof Empty || game.getPeace(l, n).isWhite() != game.isWhiteTurn()) {
-                            view.setBackgroundColor(Color.RED);
-                            if (game.doIt(sl, sn, l, n)) {
-                                refreshTable();
-                                //ENVIA O JOGO DEPOIS DE SER JOGADO!
-                                if(mode >1)
-                                    sendGame();
+                        if (game.isMyTurn(mode)) {
+                            if (sl < 0 || sn < 0) {//Se a peça não estiver selecionada
+                                if ((!(game.getPeace(l, n) instanceof Empty)) && game.getPeace(l, n).isWhite() == game.isWhiteTurn()) {
+                                    view.setBackgroundColor(Color.BLUE);
+                                    sl = l;
+                                    sn = n;
+                                } else {
+                                    sl = -1;
+                                    sn = -1;
+                                }
                             } else {
-                                sl = -1;
-                                sn = -1;
-                                refreshTable();
+                                if (game.getPeace(l, n) instanceof Empty || game.getPeace(l, n).isWhite() != game.isWhiteTurn()) {
+                                    view.setBackgroundColor(Color.RED);
+                                    if (game.doIt(sl, sn, l, n)) {
+                                        refreshTable();
+                                        //ENVIA O JOGO DEPOIS DE SER JOGADO!
+                                        if (mode > 1)
+                                            sendGame();
+                                    } else {
+                                        sl = -1;
+                                        sn = -1;
+                                        refreshTable();
+                                    }
+                                } else {
+                                    refreshTable();
+                                    view.setBackgroundColor(Color.GREEN);
+                                    sl = l;
+                                    sn = n;
+                                }
                             }
-                        } else {
-                            refreshTable();
-                            view.setBackgroundColor(Color.GREEN);
-                            sl = l;
-                            sn = n;
                         }
-                    }
-                }
-                //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
-                if (game.IsKCheck())
-                    Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
-
+                        //Toast.makeText(GameActivity.this, Integer.toString(sl) + " + " + Integer.toString(sn) , Toast.LENGTH_SHORT).show();
+                        if (game.IsKCheck())
+                            Toast.makeText(GameActivity.this, "CAUTION: King is under attack!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         }
 
 
+    }
+
+    Thread tTime = new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+            while (time>0) {
+                try {
+                    Thread.sleep(1000);
+                    if(game.isWhiteTurn()) {
+                        sec1--;
+                        if (sec1 < 0) {
+                            sec1 = 59;
+                            min1 -= 1;
+                        }
+                        if(min1<0){
+                            // TODO: 04/01/2018 Black Win
+                            time=-1;
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showTimeP1(min1,sec1);
+                            }
+                        });
+
+                    }
+                    else{
+                        sec2--;
+                        if (sec2 < 0) {
+                            sec2 = 59;
+                            min2 -= 1;
+                        }
+                        if(min1<0){
+                            // TODO: 04/01/2018 White Win
+                            time=-1;
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showTimeP2(min2,sec2);
+                            }
+                        });
+
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    });
+
+    void showTimeP1(int min1, int sec1){
+        if(sec1>=10)
+            edtTimeP1.setText(min1+":"+sec1);
+        else
+            edtTimeP1.setText(min1+":0"+sec1);
+    }
+
+    void showTimeP2(int min1, int sec1){
+        if(sec1>=10)
+            edtTimeP2.setText(min1+":"+sec1);
+        else
+            edtTimeP2.setText(min1+":0"+sec1);
     }
 
     private ServiceConnection sc = new ServiceConnection() {
@@ -290,6 +389,7 @@ public class GameActivity extends Activity {
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
+
                 unbindService(sc);
             }
         });
@@ -301,13 +401,17 @@ public class GameActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable("SavedGame", game);
         outState.putInt("Mode", mode);
+        outState.putInt("M1", min1);
+        outState.putInt("M2", min2);
+        outState.putInt("S1", sec1);
+        outState.putInt("S2", sec2);
+        outState.putInt("Time", time);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if(mode==TYPEGAMEMS){
-
             server();
         }
         else if(mode==TYPEGAMEMC)
@@ -330,6 +434,7 @@ public class GameActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         send(1, edtIP.getText().toString());
+                        tTime.start();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -372,6 +477,7 @@ public class GameActivity extends Activity {
             if(intent.getAction().equals("ServConnection")) {
                 int i = (int) intent.getSerializableExtra("flag");
                 pd.dismiss();
+                tTime.start();
             }
 
         }
@@ -446,5 +552,17 @@ public class GameActivity extends Activity {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        time=-1;
+        if (tTime.isAlive())
+            try {
+                tTime.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
     }
 }
