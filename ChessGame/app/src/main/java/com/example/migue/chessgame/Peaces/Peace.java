@@ -34,6 +34,7 @@ public abstract class Peace implements Serializable {
     public abstract String getType();
     public void setFirstMove(){};
     public void setJogadaFirst(int a){};
+    public boolean getTwoCases(Table t){return false;};
     public int getJogadaFirst(){return -2;};
     public int getValue(){return 0;};
 }
