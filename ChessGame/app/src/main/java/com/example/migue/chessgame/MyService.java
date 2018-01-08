@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -28,7 +29,7 @@ import static com.example.migue.chessgame.GameActivity.getLocalIpAddress;
 import static java.lang.Integer.parseInt;
 
 public class MyService extends Service {
-
+    private final IBinder mBinder = new LocalBinder();
     int mode;
     //Service
     boolean started = false;
@@ -66,44 +67,17 @@ public class MyService extends Service {
         state = -1;
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int ret = super.onStartCommand(intent, flags, startId);
-        test("onStartCommands");
 
-        if (intent != null) {
-            state = intent.getIntExtra("state", 0);
-        }
+    void setIP(String ip)
+    {
+        client(ip, PORT);
 
-        test("" + state);
-
-        if(state ==0){
-            test("State 0");
-            if(!started) {
-                start(intent);
-            }
-        }
-        else if(state == 1){
-            test("State 1");
-            String ip= intent.getStringExtra("ip");
-            client(ip, PORT);
-        }
-        else if (state==2){
-            test("State 2");
-            sendGame(intent.getStringExtra("game"));
-
-        }
-        return START_STICKY; //START_NOT_STICKY;
     }
-
-    public void start(Intent intent){
+    public void start(int mode){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo == null || !(networkInfo.isConnected())) {
             //TODO --> Mandar terminar GameActivity
-        }
-        if (intent != null) {
-            mode = intent.getIntExtra("mode", 2);
         }
         test("mode = " + mode);
         started=true;
@@ -116,12 +90,11 @@ public class MyService extends Service {
         }
     }
 
-    public void sendGameAct(Game var){
+    public void sendGameAct(Object var){
 
         Intent intent = new Intent();
         intent.setAction("SENDG");
-
-        intent.putExtra("game", var);
+        intent.putExtra("Game", (Serializable) var);
         sendBroadcast(intent);
 
     }
@@ -133,23 +106,18 @@ public class MyService extends Service {
 
         intent.putExtra("flag", var);
         sendBroadcast(intent);
-
     }
 
-    public void sendProf(Object var){
- //TODO -> enviar profile e definir o tipo de objecto de var
-        Intent intent = new Intent();
-        intent.setAction("SENDG");
-
-       // intent.putExtra("prof", var);
-        sendBroadcast(intent);
-
+    public class LocalBinder extends Binder {
+        public MyService getServ(){
+            return MyService.this;
+        }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         test("onBind");
-        return new MyBinder();
+        return mBinder;
     }
 
     @Override
@@ -190,12 +158,12 @@ public class MyService extends Service {
     }
 
 
-    public void sendGame(final Object gameS){
+    public void sendGame(final Game gameS){
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d("Coms", "Sending game");
+                    Log.d("Coms", "Sending game "+gameS.GameOver());
                     output.writeObject(gameS);
                     output.flush();
                 } catch (Exception e) {
@@ -266,7 +234,9 @@ public class MyService extends Service {
                 input = new ObjectInputStream(socketGame.getInputStream());
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    sendGameAct((Game) input.readObject());
+                    Game temp = (Game) input.readObject();
+                    Log.e("COMS","teste ao game over "+ temp.GameOver());
+                    sendGameAct(temp);
                     Log.d("Coms", "Received: game");
                 }
             } catch (final Exception e) {

@@ -18,6 +18,7 @@ public class Game implements Serializable {
     boolean isWhiteTurn;
     int nJogada;
     Table table;
+    boolean gameover;
     int time, bestMove;
     private ArrayList<JogadaIA> jogadasIA;
     private ArrayList<Peace> blackP;
@@ -33,7 +34,7 @@ public class Game implements Serializable {
         this.time = time;
         isWhiteTurn = true;
         this.singleplayer = singleplayer;
-
+        gameover=false;
         table = new Table();
         nJogada=0;
         historico = new ArrayList<>();
@@ -86,6 +87,7 @@ public class Game implements Serializable {
                    startIA();
                 if(GameOver()){
                     Log.i("GAME","GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER -GAME OVER");
+                    gameover=true;
                 }
                 else {
                     Log.i("GAME","Continuar");
@@ -103,6 +105,7 @@ public class Game implements Serializable {
         return false;
     }
 
+    public boolean getGameOver(){return gameover;};
     private void verPawnToQueen() {
         for(int i = 0; i <8;i++){
             if(table.getPeace(i,0) instanceof Pawn){

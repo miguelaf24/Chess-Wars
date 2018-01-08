@@ -62,7 +62,7 @@ public class GameActivity extends Activity {
     public static final int RECIVE_DIALOG_SERVER =3;
 
     ProgressDialog pd = null;
-
+    MyService myservice;
     boolean mBound = false;
     MyReciver myReceiver;
     public Game game;
@@ -73,6 +73,22 @@ public class GameActivity extends Activity {
     TextView edtTimeP1;
     TextView edtTimeP2;
     ImageButton homes[][] = new ImageButton[8][8];
+
+
+    private ServiceConnection sc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            MyService.LocalBinder binder = (MyService.LocalBinder) service;
+            myservice = binder.getServ();
+
+
+            mBound = true;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            mBound = false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +155,9 @@ public class GameActivity extends Activity {
             send(0, "");
 
             myReceiver = new MyReciver();
-
+            Intent serviceIntent = new Intent(this, MyService.class);
+            bindService(serviceIntent, sc, Context.BIND_AUTO_CREATE);
+            startService(serviceIntent);
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("SENDG");
             intentFilter.addAction("ServConnection");
@@ -158,10 +176,10 @@ public class GameActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        /*if (mBound) {
+        if (mBound) {
             unbindService(sc);
             mBound = false;
-        }*/
+        }
     }
 
     void tabSize(){
@@ -369,15 +387,7 @@ public class GameActivity extends Activity {
             edtTimeP2.setText(min1+":0"+sec1);
     }
 
-    private ServiceConnection sc = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mBound = true;
-        }
 
-        public void onServiceDisconnected(ComponentName className) {
-            mBound = false;
-        }
-    };
 
     public void server() {
 
@@ -448,17 +458,37 @@ public class GameActivity extends Activity {
 
 
     void send (int state, String data){
+
+
         Intent intentServ = new Intent(this,MyService.class);
-        intentServ.putExtra("state",state);
+        startService(intentServ);
+
+        //intentServ.putExtra("state",state);
 
         if (state == 0)
-            intentServ.putExtra("mode",mode);
+            myservice.start(mode);
         if (state ==1)
-            intentServ.putExtra("ip", data);
+            myservice.setIP(data);
         if (state ==2)
-            intentServ.putExtra("game", game);
+            myservice.sendGame(game);
 
-        startService(intentServ);
+
+        if(game.getGameOver())
+            fimJogo(true);
+    }
+
+    private void fimJogo(boolean win) {
+        Intent gameover = new Intent(this, win_Activity.class);
+        if(game.isWhiteTurn()){
+            gameover.putExtra("mode", false);
+        }else{
+            //white win
+            gameover.putExtra("mode", true);
+        }
+        gameover.putExtra("ImWinner",win);
+
+        startActivity(gameover);
+        finish();
     }
 
     private class MyReciver extends BroadcastReceiver{
@@ -466,6 +496,8 @@ public class GameActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
+                if(game.getGameOver())
+                    fimJogo(false);
                 runOnUiThread(new Runnable() {
 
                     @Override
@@ -564,5 +596,8 @@ public class GameActivity extends Activity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+        unregisterReceiver(myReceiver);
+
     }
 }
