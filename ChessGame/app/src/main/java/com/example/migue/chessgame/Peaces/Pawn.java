@@ -14,9 +14,8 @@ public class Pawn extends Peace implements Serializable {
     boolean firstPlay;
     int jf;
     int value = 1;
-    boolean twocases;
     public Pawn(boolean isWhite, int l, int n) {
-        super(isWhite,l,n); twocases=false; firstPlay=true; jf=-2;}
+        super(isWhite,l,n); firstPlay=true; jf=-2;}
 
 
     @Override
@@ -24,26 +23,10 @@ public class Pawn extends Peace implements Serializable {
 
         if(table.getPeace(l,n) instanceof Empty) {
             if (isWhite && ( n- sn == 1  ||(firstPlay && n - sn == 2)) && l==sl ) {
-                twocases=true;
-                jf=table.getJogada();
-                firstPlay = false;
+                if (firstPlay) firstPlay = false;
                 return true;
             } else if (!isWhite && (n - sn == -1 || (firstPlay && n - sn == -2)) && l==sl) {
-                twocases=true;
-                jf=table.getJogada();
-                firstPlay = false;
-                return true;
-            } else if (isWhite && !table.getPeace(sl+1, sn).isWhite() &&table.getPeace((sl+1), sn)instanceof Pawn && table.getPeace(sl+1,sn).getTwoCases(table) && (n-sn==1 && l-sl==1)){
-                table.rmv(table.getPeace(sl+1, sn)); table.setThisPeace(new Empty(true), sl+1, sn);
-                return true;
-            }else if (isWhite && !table.getPeace(sl+1, sn).isWhite() && table.getPeace((sl-1), sn)instanceof Pawn && table.getPeace(sl-1,sn).getTwoCases(table) && (n-sn==1 && l-sl==-1)){
-                table.rmv(table.getPeace(sl-1, sn)); table.setThisPeace(new Empty(true), sl-1, sn);
-                return true;
-            } else if (!isWhite && table.getPeace(sl+1, sn).isWhite() && table.getPeace((sl+1), sn)instanceof Pawn && table.getPeace(sl+1,sn).getTwoCases(table) && (n-sn==-1 && l-sl==1)){
-                table.rmv(table.getPeace(sl+1, sn)); table.setThisPeace(new Empty(true), sl+1, sn);
-                return true;
-            }else if (!isWhite && table.getPeace(sl+1, sn).isWhite() && table.getPeace((sl-1), sn)instanceof Pawn && table.getPeace(sl-1,sn).getTwoCases(table) && (n-sn==-1 && l-sl==-1)){
-                table.rmv(table.getPeace(sl-1, sn)); table.setThisPeace(new Empty(true), sl-1, sn);
+                if (firstPlay) firstPlay = false;
                 return true;
             }
         } else{
@@ -56,12 +39,6 @@ public class Pawn extends Peace implements Serializable {
         }
         return false;
     }
-
-    public boolean getTwoCases(Table table){
-        if(table.getJogada() == jf + 1 && twocases)
-            return true;
-        return false;
-    };
     public int getValue() {
         return value;
     }

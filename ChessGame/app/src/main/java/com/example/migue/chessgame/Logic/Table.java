@@ -20,7 +20,6 @@ public class Table implements Serializable{
 
     private Peace[][] coord;
     private Listas lista;
-    int numjogada =0;
     //private char[][] peaces;
 
     public Table() {
@@ -29,14 +28,6 @@ public class Table implements Serializable{
         lista= new Listas();
         startTable();
 
-    }
-
-    public int getJogada() {
-        return numjogada;
-    }
-
-    public void setJogada(int n) {
-        numjogada=n;
     }
 
     public void startTable(){

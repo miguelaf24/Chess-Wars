@@ -56,30 +56,11 @@ public class Game implements Serializable {
         if (getPeace(sl, sn).action(table, l, n)) { //se a accão devolver true
 
             if(table.getPeace(sl,sn) instanceof King && isKingCheck(l, n)){
-                Peace p2 = new Empty(true);
-                boolean isRooqD=false;
-                boolean isRooqE=false;
-                if(sl-2==l){
-                    p2=    table.getPeace(sl-1,sn);
-                    isRooqE = true;
-                }
-                else if(sl+2==l){
-                    p2=    table.getPeace(sl+1,sn);
-                    isRooqD = true;
-                }
-                if(isRooqD){
-                    table.setPeace(sl+3, sn, sl+1, sn);       //Meter a peça no local Inicial
-                    table.setThisPeace(p2, sl+3, sn);//Voltar a meter a peça removida no destino
-                }
-                if(isRooqE){
-                    table.setPeace(sl-4, sn, sl-1, sn);       //Meter a peça no local Inicial
-                    table.setThisPeace(p2, sl-4, sn);//Voltar a meter a peça removida no destino
-                }
                 return false;
             }
             else if(changePeace(sl,sn,l,n)) {
                 isWhiteTurn = !isWhiteTurn;
-                table.setJogada(++nJogada);
+                nJogada++;
                 historico.add(new Jogada(getPeace(l,n),new Posicao(sl,sn),new Posicao(l,n)));
                 verPawnToQueen();
                 if(!isWhiteTurn && singleplayer)
