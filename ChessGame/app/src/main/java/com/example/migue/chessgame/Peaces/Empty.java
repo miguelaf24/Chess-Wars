@@ -1,5 +1,7 @@
 package com.example.migue.chessgame.Peaces;
 
+import android.content.Context;
+
 import com.example.migue.chessgame.Logic.Table;
 
 import java.io.Serializable;
@@ -23,5 +25,10 @@ public class Empty extends Peace implements Serializable {
 
     public int getValue() {
         return 0;
+    }
+
+    @Override
+    public String toStringA(Context context) {
+        return null;
     }
 }

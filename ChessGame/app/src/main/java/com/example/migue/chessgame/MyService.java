@@ -99,13 +99,12 @@ public class MyService extends Service {
             closeall();
 
         }
+
         return START_STICKY; //START_NOT_STICKY;
     }
 
     private void closeall() {
         onDestroy();
-
-
     }
 
     public void start(Intent intent){
@@ -191,7 +190,11 @@ public class MyService extends Service {
         run=false;
         if (commThread.isAlive()) {
             commThread.interrupt();
-            socketGame=null;
+            try {
+                socketGame.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             serverSocket=null;
             //commThread.join();
         }
@@ -208,9 +211,16 @@ public class MyService extends Service {
             @Override
             public void run() {
                 try {
-                    Log.d("Coms", "Sending game");
-                    output.writeObject(gameS);
-                    output.flush();
+                    if(socketGame.isConnected() && !socketGame.isClosed()) {
+                        Log.d("Coms", "Sending game");
+                        output.writeObject(gameS);
+                        output.flush();
+                    }
+                    else{
+                        Log.d("Coms", "Socket closed");
+
+
+                    }
                 } catch (Exception e) {
                     Log.d("Coms", "Error sending a move" + e);
                 }
@@ -274,27 +284,21 @@ public class MyService extends Service {
     Thread commThread = new Thread(new Runnable() {
         @Override
         public void run() {
+
             try {
                 output = new ObjectOutputStream(socketGame.getOutputStream());
+
                 input = new ObjectInputStream(socketGame.getInputStream());
 
+
                 while (!Thread.currentThread().isInterrupted()) {
-                    sendGameAct((Game) input.readObject());
-                    Log.d("Coms", "Received: game");
+                        sendGameAct((Game) input.readObject());
+                        Log.d("Coms", "Received: game");
                 }
             } catch (final Exception e) {
-                /*
-                procMsg.post(new Runnable() {
-                    @Override
-                    public void run() {
-                       // if(game.GameOver()||Thread.currentThread().isInterrupted())
-                    //        finish();
-                        //TODO -> VERIFICAR TOAST
-                        Log.d("Coms", "Jogo terminou?" + e.toString());
-                      //  finish();
-                    }
-                });
-                */
+                Log.d("Coms", "Socket closed");
+                closeall();
+                //TODO acabar, chamar função para enviar mensagem ao game para continuar em multiplayer local
             }
         }
     });

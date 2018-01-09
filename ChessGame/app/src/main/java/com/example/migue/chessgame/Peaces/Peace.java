@@ -1,5 +1,7 @@
 package com.example.migue.chessgame.Peaces;
 
+import android.content.Context;
+
 import com.example.migue.chessgame.Logic.Table;
 
 import java.io.Serializable;
@@ -41,4 +43,6 @@ public abstract class Peace implements Serializable {
     public boolean getTwoCases(Table t){return false;};
     public int getJogadaFirst(){return -2;};
     public int getValue(){return 0;};
+
+    public abstract String toStringA(Context context);
 }

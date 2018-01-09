@@ -3,6 +3,7 @@ package com.example.migue.chessgame;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class win_Activity extends Activity {
@@ -14,24 +15,26 @@ public class win_Activity extends Activity {
         boolean mode = true;
         boolean winner = true;
 
+        ImageView img= (ImageView)this.findViewById(R.id.winimg);
+
         Intent intent = getIntent();
 
         if (intent != null) {
             mode = intent.getBooleanExtra("mode", true); //Get who wins
             winner = intent.getBooleanExtra("ImWinner", true); //get whose player is
         }
-        TextView t = (TextView) findViewById(R.id.winMsg);
+
         if (mode) {//whiteWins
             if(winner)
-                t.setText("white wins and you are white");
+                img.setImageResource(R.drawable.whitewinswhite);
             else
-                t.setText("white wins and you are a fkng looser");
+                img.setImageResource(R.drawable.whitewinsblack);
 
         } else{//blackWins
             if(winner)
-                t.setText("black wins and you are black");
+                img.setImageResource(R.drawable.blackwinswhite);
             else
-                t.setText("bloack wins and you are a fkng looser");
+                img.setImageResource(R.drawable.blackwinsblack);
 
         }
 

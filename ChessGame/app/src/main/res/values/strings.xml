@@ -21,4 +21,16 @@
     <string name="MultGames">Multiplayer Games:</string>
     <string name="PlayedG">Played Games:</string>
     <string name="clean_history">Clean</string>
+    <string name="about">About</string>
+    <string name="builtby">Built by:</string>
+    <string name="horse">Horse</string>
+    <string name="pawn">Pawn</string>
+    <string name="bishop">Bishop</string>
+    <string name="king">King</string>
+    <string name="tower">Tower</string>
+    <string name="queen">Queen</string>
+    <string name="piecetext">Piece:</string>
+    <string name="NoGames">No games data stored!</string>
+    <string name="winthegame"> and you win the game</string>
+    <string name="loserthegame"> and you lose the game</string>
 </resources>

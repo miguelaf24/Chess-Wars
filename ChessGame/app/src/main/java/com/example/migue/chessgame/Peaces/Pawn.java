@@ -1,8 +1,11 @@
 package com.example.migue.chessgame.Peaces;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.example.migue.chessgame.Logic.Table;
+import com.example.migue.chessgame.R;
 
 import java.io.Serializable;
 
@@ -66,9 +69,11 @@ public class Pawn extends Peace implements Serializable {
     };
 
 
-    @Override
-    public String toString() {
-        return "Pawn";
+
+    public String toStringA(Context cont) {
+        Resources res = cont.getResources();
+
+        return res.getString(R.string.pawn);
     }
     public int getValue() {
         return value;

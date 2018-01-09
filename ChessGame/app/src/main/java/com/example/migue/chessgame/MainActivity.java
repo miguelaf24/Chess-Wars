@@ -23,6 +23,8 @@ public class MainActivity extends Activity {
     Button bPlay;
     Button bProfile;
     Button bHistory;
+    Button bAbout;
+    Button bExit;
     Intent intent;
     Context context = this;
 
@@ -96,7 +98,26 @@ public class MainActivity extends Activity {
             }
         });
 
+        bAbout = (Button) findViewById(R.id.bAbout);
 
+        bAbout.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                intent = new Intent(context, AboutActivity.class);
+                startActivity(intent);
+            }
+        });
+        bExit = (Button) findViewById(R.id.bExit);
+
+        bExit.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                finish();
+                System.exit(0);
+            }
+        });
 
     }
 

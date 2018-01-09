@@ -1,5 +1,9 @@
 package com.example.migue.chessgame.Logic;
 
+import android.content.Context;
+
+import com.example.migue.chessgame.R;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,17 +37,17 @@ public class GameHistoric implements Serializable{
         Player2 = player2;
     }
 
-    @Override
-    public String toString() {
+
+    public String toStringA(Context context) {
         String temp;
         if(win) {
-            temp = "win the game";
+            temp = context.getString(R.string.winthegame);
         }
         else
-           temp= "lose the game";
+           temp= context.getString(R.string.loserthegame);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
         String time = simpleDateFormat.format(data);
-        return (Player1+" VS "+ Player2 +" and you "+temp+"\n "+time);
+        return (Player1+" VS "+ Player2 +" "+temp+"\n "+time);
     }
 
     public GameHistoric(ArrayList<Jogada> historico, boolean win) {

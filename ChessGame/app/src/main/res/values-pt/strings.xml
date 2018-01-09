@@ -20,4 +20,17 @@
 <string name="winGames">Jogos Ganhos:</string>
 <string name="MultGames">Jogos em Rede:</string>
 <string name="PlayedG">Jogos jogados:</string>
+<string name="clean_history">Limpar</string>
+<string name="about">Acerca</string>
+<string name="builtby">Construido por:</string>
+<string name="horse">Cavalo</string>
+<string name="pawn">Peão</string>
+<string name="bishop">Bispo</string>
+<string name="king">Rei</string>
+<string name="tower">Torre</string>
+<string name="queen">Rainha</string>
+<string name="piecetext">Peça:</string>
+<string name="NoGames">Sem jogos guardados!</string>
+<string name="winthegame"> e tu ganhaste o jogo</string>
+<string name="loserthegame"> e tu perdeste o jogo</string>
 </resources>

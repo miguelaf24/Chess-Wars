@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.migue.chessgame.AboutActivity"
+    android:background="@drawable/backg"
+    android:orientation="vertical">
+
+
+
+
+    <TextView
+            android:textColor="@color/colorWhite"
+            android:layout_marginTop="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:textSize="@dimen/textSize2"
+            android:text="@string/builtby"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="Miguel Almeida 21220106"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:textColor="@color/colorYellow"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="Bruno Santos 21190312"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:textColor="@color/colorYellow"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="Arquiteturas Móveis 2017/2018"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:textColor="@color/colorYellow"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/iseclogo"/>
+
+    </LinearLayout>
+
+</LinearLayout>

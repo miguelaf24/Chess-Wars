@@ -1,6 +1,10 @@
 package com.example.migue.chessgame.Peaces;
 
+import android.content.Context;
+import android.content.res.Resources;
+
 import com.example.migue.chessgame.Logic.Table;
+import com.example.migue.chessgame.R;
 
 import java.io.Serializable;
 
@@ -45,9 +49,10 @@ public class King extends Peace implements Serializable {
     }
 
 
-    @Override
-    public String toString() {
-        return "King";
+    public String toStringA(Context cont) {
+        Resources res = cont.getResources();
+
+        return res.getString(R.string.king);
     }
     public int getValue() {
         return value;

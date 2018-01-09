@@ -56,7 +56,7 @@ public class HistoryActivity extends Activity {
         final ArrayList<String> DynamicListElements = new ArrayList<>();
 
         for(int i=0; i<allgames.getJogos().size();i++)
-            DynamicListElements.add(allgames.getJogos().get(i).toString());
+            DynamicListElements.add(allgames.getJogos().get(i).toStringA(context));
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>
@@ -108,7 +108,7 @@ public class HistoryActivity extends Activity {
             buildList();
         }
         else{
-            Toast.makeText(this,"Sem Jogos!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.NoGames,Toast.LENGTH_SHORT).show();
             finish();
         }
     }
