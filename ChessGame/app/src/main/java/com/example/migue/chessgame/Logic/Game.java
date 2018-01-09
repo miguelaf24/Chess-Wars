@@ -205,6 +205,8 @@ public class Game implements Serializable {
         isWhiteTurn = true;
     }
 
+    int maxPoints;
+
     ArrayList<JogadaIA> firstIA(int lvl, ArrayList<JogadaIA> jogadaIA){
         ArrayList<JogadaIA> jogadasIAtemp = jogadaIA;
         ArrayList<Peace> blackPeaces = table.getlista().black;
@@ -212,242 +214,252 @@ public class Game implements Serializable {
         Table tempTable = table;
 
         Jogada jIA = null;
-        int maxPoints = -9999;
+        maxPoints = -9999;
 
         if(jogadaIA==null){
             for (int i = 0; i < table.getlista().black.size(); i++) {
-                int tentativa = 0;
-                while(true){
-                    Jogada jAux = tryIAJogada(table.getlista().black.get(i).getL(), table.getlista().black.get(i).getN(), lvl, true);
-                    // TODO: 06/01/2018 change tryIAJogada para retornar todas as Jogadas da peça
-                    if(jAux==null)
-                        break;
-                    else
-                        tentativa++;
-                    int points = getPoints(table, true);
-                    if(points >= maxPoints){
-                        jogadasIAtemp.add(new JogadaIA(jAux, getPoints(table, true)));
-                        maxPoints = points;
-                    }
-                    reporIA(tempTable,whitePeaces,blackPeaces);
-                }
-
+                jogadasIAtemp = iaMinMax(jogadasIAtemp, tempTable, table.getlista().black.get(i),lvl,true, whitePeaces, blackPeaces);
             }
         }
         else{
-            for(int j = 0; j < jogadasIAtemp.size() ; j++) {
+            for(int j = 0; j < jogadaIA.size() ; j++) {
                 Jogada jogada = jogadasIAtemp.get(j).getJogada();
                 changePeace(jogada.inicial.getX(),jogada.inicial.getY(),jogada.Final.getX(),jogada.Final.getY());
-
                 if (isWhiteTurn) {
                     for (int i = 0; i < table.getlista().white.size(); i++) {
-                        Jogada jAux = tryIAJogada(table.getlista().white.get(i).getL(), table.getlista().white.get(i).getN(), lvl, true);
-                        int points = getPoints(table, true) + jogadasIAtemp.get(j).getPoints();
-                        if (points > maxPoints) {
-                            maxPoints = points;
-                            jogadasIAtemp.get(j).addPoints(points);
-                        }
-                        reporIA(tempTable, whitePeaces, blackPeaces);
+                        jogadasIAtemp = iaMinMax(jogadasIAtemp, tempTable, table.getlista().black.get(i),lvl,false, whitePeaces, blackPeaces);
                     }
                 } else {
                     for (int i = 0; i < table.getlista().black.size(); i++) {
-                        Jogada jAux = tryIAJogada(table.getlista().black.get(i).getL(), table.getlista().black.get(i).getN(), lvl, true);
-                        int points = getPoints(table, true) + jogadasIAtemp.get(j).getPoints();
-                        if (points > maxPoints) {
-                            maxPoints = points;
-                            jogadasIAtemp.get(j).addPoints(points);
-                        }
-                        reporIA(tempTable, whitePeaces, blackPeaces);
+                        jogadasIAtemp = iaMinMax(jogadasIAtemp, tempTable, table.getlista().black.get(i),lvl,false, whitePeaces, blackPeaces);
                     }
                 }
+                for(int i = 0; i<jogadasIAtemp.size();i++){
+                    if(jogadasIAtemp.get(i).getPoints()<maxPoints){
+                        jogadasIAtemp.remove(i--);
+                    }
+                }
+                jogadaIA.get(j).setPoints(maxPoints);
             }
         }
-        for(int i = 0; i<jogadasIAtemp.size();i++){
+        jogadaIA=jogadasIAtemp;
+        for(int i = 0; i<jogadaIA.size();i++){
             if(jogadaIA.get(i).getPoints()<maxPoints){
-                jogadasIAtemp.remove(i--);
+                jogadaIA.remove(i--);
             }
         }
 
-        if(lvl>0)
-            return firstIA(lvl, jogadasIAtemp);
+        while(lvl>=0){
+            isWhiteTurn=!isWhiteTurn;
+            jogadaIA = firstIA(--lvl, jogadasIAtemp);
+
+        }
+        return jogadaIA;
+    }
+
+    private ArrayList<JogadaIA> iaMinMax(ArrayList<JogadaIA> jogadasIAtemp, Table tempTable, Peace peace, int lvl, boolean b, ArrayList<Peace> whitePeaces, ArrayList<Peace> blackPeaces) {
+        int tentativa = 0;
+        while(true){
+
+            JogadaIA jAux = tryIAJogada(peace.getL(), peace.getN(), lvl, true, tentativa);
+            if(jAux==null)
+                break;
+            else
+                tentativa++;
+            int points = getPoints(table, b);
+            if(points >= maxPoints){
+                jogadasIAtemp.add(jAux);
+                maxPoints = points;
+            }
+            reporIA(tempTable,whitePeaces,blackPeaces);
+        }
         return jogadasIAtemp;
     }
 
-    private void reporIA(Table tempTable, ArrayList<Peace> whitePeaces, ArrayList<Peace> blackPeaces) {
-        table=tempTable;
-        table.getlista().white.clear();
-        table.getlista().white = whitePeaces;
-        table.getlista().black.clear();
-        table.getlista().black = blackPeaces;
-    }
 
-    private Jogada tryIAJogada(int l, int n, int level, boolean IAturn) {
+    private JogadaIA tryIAJogada(int l, int n, int level, boolean IAturn, int tentativa) {
         Jogada jFinal = null;
         Table tempTable = table;
         int points = bestMove;
         if(table.getPeace(l,n) instanceof King){
             if(trychangePeace(l,n,l+1,n)){
-                tempTable=startIA(l,n,l+1,n, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
-                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n));
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l+1,n, level, IAturn);
+                    return new JogadaIA(new Jogada(table.getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n)),getPoints(tempTable, IAturn));
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l+1,n+1)){
-                tempTable=startIA(l,n,l+1,n+1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n+1));
+                    tempTable=startIA(l,n,l+1,n+1, level, IAturn);
+                    return new JogadaIA(jFinal,getPoints(tempTable, IAturn));
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l+1,n-1)){
-                tempTable=startIA(l,n,l+1,n-1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l+1,n-1, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n-1));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l,n-1)){
-                tempTable=startIA(l,n,l,n-1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l,n-1, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n-1));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l,n+1)){
-                tempTable=startIA(l,n,l,n+1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l,n+1, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n+1));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
+
             }
             if(trychangePeace(l,n,l-1,n)){
-                tempTable=startIA(l,n,l-1,n, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l-1,n, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-1,n));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l-1,n+1)){
-                tempTable=startIA(l,n,l-1,n+1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l-1,n+1, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-1,n+1));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
             }
             if(trychangePeace(l,n,l-1,n-1)){
-                tempTable=startIA(l,n,l-1,n-1, level, IAturn);
-                int temp = getPoints(tempTable, IAturn);
-                if(temp>=points){
-                    points = temp;
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,l-1,n-1, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
                     jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-1,n-1));
+                    return new JogadaIA(jFinal,temp);
                 }
+                else tentativa--;
             }
             if(table.getPeace(l,n).isFirstPlay()){
                 if(table.getPeace(l+1,n) instanceof Empty && table.getPeace(l+2,n) instanceof Empty && table.getPeace(l+3,n).isFirstPlay()){
-                    tempTable=startIA(l,n,l+2,n, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,l+2,n, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+2,n));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(table.getPeace(l-1,n) instanceof Empty && table.getPeace(l-2,n) instanceof Empty && table.getPeace(l-1,n) instanceof Empty && table.getPeace(l-4,n).isFirstPlay()){
-                    tempTable=startIA(l,n,l-2,n, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,l-2,n, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-2,n));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
             }
         } else if(table.getPeace(l,n) instanceof Pawn){
             if(table.getPeace(l,n).isWhite()){
                 if(((Pawn) table.getPeace(l,n)).isFirstPlay() && table.getPeace(l,n+1) instanceof  Empty && table.getPeace(l,n+2) instanceof  Empty)
                     if(trychangePeace(l,n,l,n+2)){
-                        tempTable=startIA(l,n,l,n+2, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l,n+2, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n+2));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 if(!(table.getPeace(l+1,n+1) instanceof  Empty)){
                     if(trychangePeace(l,n,l+1,n+1)){
-                        tempTable=startIA(l,n,l+1,n+1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l+1,n+1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n+1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
                 if(!(table.getPeace(l-1,n+1) instanceof  Empty)) {
                     if (trychangePeace(l, n, l - 1, n + 1)) {
-                        tempTable=startIA(l,n,l-1,n+1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l-1,n+1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-1,n+1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
                 if(table.getPeace(l,n+1) instanceof  Empty){
                     if(trychangePeace(l,n,l,n+1)){
-                        tempTable=startIA(l,n,l,n+1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l,n+1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n+1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
             }
             else{
                 if(!(table.getPeace(l+1,n-1) instanceof  Empty)){
                     if(trychangePeace(l,n,l+1,n-1)){
-                        tempTable=startIA(l,n,l+1,n-1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l+1,n-1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l+1,n-1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
                 if(!(table.getPeace(l-1,n-1) instanceof  Empty)) {
                     if (trychangePeace(l, n, l - 1, n - 1)) {
-                        tempTable=startIA(l,n,l-1,n-1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l-1,n-1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l-1,n-1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
                 if(((Pawn) table.getPeace(l,n)).isFirstPlay() && table.getPeace(l,n-1) instanceof  Empty && table.getPeace(l,n-2) instanceof  Empty)
                     if(trychangePeace(l,n,l,n-2)){
-                        tempTable=startIA(l,n,l,n-2, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l,n-2, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n-2));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 if(table.getPeace(l,n-1) instanceof  Empty){
                     if(trychangePeace(l,n,l,n-1)){
-                        tempTable=startIA(l,n,l,n-1, level, IAturn);
-                        int temp = getPoints(tempTable, IAturn);
-                        if(temp>=points){
-                            points = temp;
+                        if(tentativa==0) {
+                            tempTable=startIA(l,n,l,n-1, level, IAturn);
+                            int temp = getPoints(tempTable, IAturn);
                             jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(l,n-1));
+                            return new JogadaIA(jFinal,temp);
                         }
+                        else tentativa--;
                     }
                 }
             }
@@ -458,12 +470,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -475,12 +488,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
@@ -492,12 +506,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -509,18 +524,107 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
                 sn = sn - 1;
             }
         }else if (table.getPeace(l,n) instanceof Horse){
+            int sl = l - 1;
+            int sn = n + 2;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l - 1;
+            sn = n - 2;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l + 1;
+            sn = n + 2;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l + 1;
+            sn = n - 2;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l - 2;
+            sn = n + 1;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l - 2;
+            sn = n - 1;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l + 2;
+            sn = n + 1;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
+            sl = l + 2;
+            sn = n - 1;
+            if(trychangePeace(l,n,sl,sn)){
+                if(tentativa==0) {
+                    tempTable=startIA(l,n,sl,sn, level, IAturn);
+                    int temp = getPoints(tempTable, IAturn);
+                    jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    return new JogadaIA(jFinal,temp);
+                }
+                else tentativa--;
+            }
         } else if (table.getPeace(l,n) instanceof Queen){
             int sl = l - 1;
             int sn = n + 1;
@@ -528,12 +632,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -545,12 +650,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
@@ -562,12 +668,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -579,12 +686,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
@@ -598,12 +706,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sn = sn - 1;
@@ -614,12 +723,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sn = sn + 1;
@@ -630,12 +740,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -646,12 +757,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
@@ -663,12 +775,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sn = sn - 1;
@@ -679,12 +792,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sn = sn + 1;
@@ -695,12 +809,13 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
                         jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl - 1;
@@ -711,20 +826,31 @@ public class Game implements Serializable {
                 if(!(table.getPeace(l,n) instanceof Empty) && table.getPeace(l,n).isWhite()==isWhiteTurn()) break;
                 else
                 if(trychangePeace(l,n,sl,sn)){
-                    tempTable=startIA(l,n,sl,sn, level, IAturn);
-                    int temp = getPoints(tempTable, IAturn);
-                    if(temp>=points){
-                        points = temp;
-                        jFinal = new  Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                    if(tentativa==0) {
+                        tempTable=startIA(l,n,sl,sn, level, IAturn);
+                        int temp = getPoints(tempTable, IAturn);
+                        jFinal = new Jogada(getPeace(l,n),new Posicao(l,n),new Posicao(sl,sn));
+                        return new JogadaIA(jFinal,temp);
                     }
+                    else tentativa--;
                 }
                 if(!(table.getPeace(l,n) instanceof Empty)) break;
                 sl = sl + 1;
             }
         }
 
-        return jFinal;
+        return null;
     }
+
+    private void reporIA(Table tempTable, ArrayList<Peace> whitePeaces, ArrayList<Peace> blackPeaces) {
+        table=tempTable;
+        table.getlista().white.clear();
+        table.getlista().white = whitePeaces;
+        table.getlista().black.clear();
+        table.getlista().black = blackPeaces;
+    }
+
+
 
 
     public Table ia(int level, Table tempTable, boolean IAturn){
@@ -1119,6 +1245,30 @@ public class Game implements Serializable {
                 sn = sn - 1;
             }
         }else if (table.getPeace(l,n) instanceof Horse){
+            int sl = l - 1;
+            int sn = n + 2;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l - 1;
+            sn = n - 2;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l + 1;
+            sn = n + 2;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l + 1;
+            sn = n - 2;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l - 2;
+            sn = n + 1;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l - 2;
+            sn = n - 1;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l + 2;
+            sn = n + 1;
+            if(trychangePeace(l,n,sl,sn))return true;
+            sl = l + 2;
+            sn = n - 1;
+            if(trychangePeace(l,n,sl,sn))return true;
         } else if (table.getPeace(l,n) instanceof Queen){
             int sl = l - 1;
             int sn = n + 1;
