@@ -15,6 +15,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,9 +31,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.migue.chessgame.Logic.AllHistoricGames;
 import com.example.migue.chessgame.Logic.Game;
+import com.example.migue.chessgame.Logic.GameHistoric;
 import com.example.migue.chessgame.Peaces.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -62,7 +69,6 @@ public class GameActivity extends Activity {
     public static final int RECIVE_DIALOG_SERVER =3;
 
     ProgressDialog pd = null;
-    MyService myservice;
     boolean mBound = false;
     MyReciver myReceiver;
     public Game game;
@@ -75,19 +81,6 @@ public class GameActivity extends Activity {
     ImageButton homes[][] = new ImageButton[8][8];
 
 
-    private ServiceConnection sc = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            MyService.LocalBinder binder = (MyService.LocalBinder) service;
-            myservice = binder.getServ();
-
-
-            mBound = true;
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            mBound = false;
-        }
-    };
 
 
     @Override
@@ -155,9 +148,7 @@ public class GameActivity extends Activity {
             send(0, "");
 
             myReceiver = new MyReciver();
-            Intent serviceIntent = new Intent(this, MyService.class);
-            bindService(serviceIntent, sc, Context.BIND_AUTO_CREATE);
-            startService(serviceIntent);
+
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("SENDG");
             intentFilter.addAction("ServConnection");
@@ -168,6 +159,17 @@ public class GameActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(mode==TYPEGAMEMS){
+            server();
+        }
+        else if(mode==TYPEGAMEMC)
+            clientDlg();
+    }
+
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         tabSize();
@@ -176,10 +178,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (mBound) {
-            unbindService(sc);
-            mBound = false;
-        }
+
     }
 
     void tabSize(){
@@ -323,6 +322,24 @@ public class GameActivity extends Activity {
 
     }
 
+    public void server() {
+
+        String ip = getLocalIpAddress();
+        pd = new ProgressDialog(this);
+        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
+                + ")");
+        pd.setTitle(getString(R.string.servDlgWindowTit));
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+                //unbindService(sc);
+            }
+        });
+        pd.show();
+
+    }
+
     Thread tTime = new Thread(new Runnable() {
         @Override
         public void run() {
@@ -373,6 +390,8 @@ public class GameActivity extends Activity {
         }
     });
 
+
+
     void showTimeP1(int min1, int sec1){
         if(sec1>=10)
             edtTimeP1.setText(min1+":"+sec1);
@@ -387,25 +406,6 @@ public class GameActivity extends Activity {
             edtTimeP2.setText(min1+":0"+sec1);
     }
 
-
-
-    public void server() {
-
-        String ip = getLocalIpAddress();
-        pd = new ProgressDialog(this);
-        pd.setMessage(getString(R.string.servDlgWindow) + "\n(IP: " + ip
-                + ")");
-        pd.setTitle(getString(R.string.servDlgWindowTit));
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-
-                unbindService(sc);
-            }
-        });
-        pd.show();
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -416,16 +416,6 @@ public class GameActivity extends Activity {
         outState.putInt("S1", sec1);
         outState.putInt("S2", sec2);
         outState.putInt("Time", time);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(mode==TYPEGAMEMS){
-            server();
-        }
-        else if(mode==TYPEGAMEMC)
-            clientDlg();
     }
 
     void sendGame(){
@@ -458,23 +448,27 @@ public class GameActivity extends Activity {
 
 
     void send (int state, String data){
-
-
         Intent intentServ = new Intent(this,MyService.class);
-        startService(intentServ);
-
-        //intentServ.putExtra("state",state);
+        intentServ.putExtra("state",state);
 
         if (state == 0)
-            myservice.start(mode);
+            intentServ.putExtra("mode",mode);
         if (state ==1)
-            myservice.setIP(data);
+            intentServ.putExtra("ip", data);
         if (state ==2)
-            myservice.sendGame(game);
+            intentServ.putExtra("game", game);
+        if (state ==3){
 
+            startService(intentServ);
+            return;
+        }
 
-        if(game.getGameOver())
+        startService(intentServ);
+        if(game.getGameOver()) {
+            saveGameNet(true);
             fimJogo(true);
+
+        }
     }
 
     private void fimJogo(boolean win) {
@@ -486,9 +480,26 @@ public class GameActivity extends Activity {
             gameover.putExtra("mode", true);
         }
         gameover.putExtra("ImWinner",win);
-
-        startActivity(gameover);
+        send(3, "close"); //mensagem ao servico para encerrar
         finish();
+        startActivity(gameover);
+
+    }
+
+
+    private void fimJogo() {
+        Intent gameover = new Intent(this, win_Activity.class);
+        if(game.isWhiteTurn()){
+            gameover.putExtra("mode", false);
+            gameover.putExtra("ImWinner",false);
+        }else{
+            //white win
+            gameover.putExtra("mode", true);
+            gameover.putExtra("ImWinner",true);
+
+        }
+        finish();
+        startActivity(gameover);
     }
 
     private class MyReciver extends BroadcastReceiver{
@@ -496,8 +507,11 @@ public class GameActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
-                if(game.getGameOver())
+                if(game.getGameOver()){
+                    saveGameNet(false);
                     fimJogo(false);
+                }
+
                 runOnUiThread(new Runnable() {
 
                     @Override
@@ -508,6 +522,7 @@ public class GameActivity extends Activity {
             }
             if(intent.getAction().equals("ServConnection")) {
                 int i = (int) intent.getSerializableExtra("flag");
+
                 pd.dismiss();
                 tTime.start();
             }
@@ -516,6 +531,9 @@ public class GameActivity extends Activity {
     }
 
     void refreshTable(){
+        if(game.getGameOver()&&mode<2){
+            fimJogo();
+        }
         for(int i = 0; i < 8 ; i++){
             for(int j = 0; j < 8 ; j++){
                 if(i%2==0 && j%2!=0)homes[i][j].setBackgroundColor(Color.parseColor("#2E2EFE"));
@@ -589,6 +607,11 @@ public class GameActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        try {
+            saveGame();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         time=-1;
         if (tTime.isAlive())
             try {
@@ -596,8 +619,88 @@ public class GameActivity extends Activity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-        unregisterReceiver(myReceiver);
+        if(mode>1)
+            unregisterReceiver(myReceiver);
 
     }
+
+    private void  saveGameNet(boolean b){
+        GameHistoric gmH;
+
+        gmH = new GameHistoric(game.getHistorico(),b);
+        gmH.setPlayer1("Player 1");
+        gmH.setPlayer2("Player 2");
+
+        try {
+            saveHistoricFile(gmH);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveGame() throws IOException {
+        GameHistoric gmH;
+        if(mode == 0){
+            if(game.isWhiteTurn()){
+                gmH = new GameHistoric(game.getHistorico(),false);
+            }
+            else{
+                gmH = new GameHistoric(game.getHistorico(),true);
+
+            }
+            gmH.setPlayer1("Player");
+            gmH.setPlayer2("CPU");
+            saveHistoricFile(gmH);
+        }
+        else if(mode == 1){
+            if(game.isWhiteTurn()){
+                gmH = new GameHistoric(game.getHistorico(),false);
+            }
+            else{
+                gmH = new GameHistoric(game.getHistorico(),true);
+            }
+            gmH.setPlayer1("Player 1");
+            gmH.setPlayer2("Player 2");
+            saveHistoricFile(gmH);
+        }
+    }
+
+    private void saveHistoricFile(GameHistoric gmH) throws IOException {
+        ObjectOutputStream out = null;
+        AllHistoricGames allgames=new AllHistoricGames();
+
+        File file = new File(Environment.getExternalStorageDirectory(), "history.dat");
+        if(file.exists()) { //seFicheiroJaExistir
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+
+            try {
+                allgames = (AllHistoricGames) ois.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        allgames.AddJogo(gmH); //adiciona aos jogos
+            try {
+                File outFile = new File(Environment.getExternalStorageDirectory(), "history.dat");
+                out = new ObjectOutputStream(new FileOutputStream(outFile));
+                out.writeObject(allgames);
+                Log.i("CreateFoo", "Write success");
+            } catch (IOException e) {
+                Log.i("CreateFoo", "Write - Catch error can't find .dat");
+            } finally {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                    Log.i("CreateFoo", "Write - Failed to close object output stream.");
+                }
+            }
+
+
+
+
+    }
+
 }

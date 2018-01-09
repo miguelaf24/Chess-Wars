@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 
 public class Empty extends Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
     public Empty(boolean isWhite) {
         super(isWhite, 0, 0);
     }

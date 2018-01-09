@@ -44,10 +44,9 @@
             android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".TypeGameActivity" />
 
-        <service
-            android:name=".MyService"
+        <service android:name="com.example.migue.chessgame.MyService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <activity android:name=".ProfileActivity"
             android:screenOrientation="portrait"

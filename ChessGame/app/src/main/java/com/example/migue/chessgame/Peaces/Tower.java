@@ -11,6 +11,9 @@ import java.io.Serializable;
  */
 
 public class Tower extends Peace implements Serializable {
+
+    static final long serialVersionUID = 42L;
+
     boolean firstPlay;
 
     int value = 7;
@@ -71,6 +74,12 @@ public class Tower extends Peace implements Serializable {
 
         }
         return false;
+    }
+
+
+    @Override
+    public String toString() {
+        return"Tower";
     }
     public boolean isFirstPlay(){return firstPlay;}
     public String getType(){return "Tower";}

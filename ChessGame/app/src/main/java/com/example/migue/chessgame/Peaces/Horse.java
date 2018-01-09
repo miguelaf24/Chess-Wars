@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 
 public class Horse extends Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
     public Horse(boolean isWhite, int l, int n) {
         super(isWhite,l,n);
     }
@@ -24,6 +26,11 @@ public class Horse extends Peace implements Serializable {
         return false;
     }
 
+
+    @Override
+    public String toString() {
+        return "Horse";
+    }
     public int getValue() {
         return value;
     }

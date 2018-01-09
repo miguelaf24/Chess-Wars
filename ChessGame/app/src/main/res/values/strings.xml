@@ -20,4 +20,5 @@
     <string name="winGames">Winned Games:</string>
     <string name="MultGames">Multiplayer Games:</string>
     <string name="PlayedG">Played Games:</string>
+    <string name="clean_history">Clean</string>
 </resources>

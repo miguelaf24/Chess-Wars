@@ -15,9 +15,9 @@ public class Jogada implements Serializable {
     @Override
     public String toString() {
         return "Jogada{" +
-                "p=" + p +
-                ", inicial=" + inicial +
-                ", Final=" + Final +
+                "p=" + p.toString() +
+                ", inicial=" + Character.toString((char) ('A'+inicial.getX())) + (inicial.getY()+1) +
+                ", Final=" + Character.toString((char) ('A'+Final.getX())) + (Final.getY()+1) +
                 '}';
     }
 

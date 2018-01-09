@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 
 public class King extends Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
     boolean firstPlay;
     int value =1000;
     public King(boolean isWhite, int l, int n) {
@@ -40,6 +42,12 @@ public class King extends Peace implements Serializable {
             }
         }
         return false;
+    }
+
+
+    @Override
+    public String toString() {
+        return "King";
     }
     public int getValue() {
         return value;

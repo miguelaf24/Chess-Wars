@@ -27,7 +27,10 @@ public class Game implements Serializable {
 
     private ArrayList<Jogada> historico;
 
-    // Istate state;
+    public ArrayList<Jogada> getHistorico() {
+        return historico;
+    }
+// Istate state;
 
 
     public Game(boolean singleplayer, int time) {

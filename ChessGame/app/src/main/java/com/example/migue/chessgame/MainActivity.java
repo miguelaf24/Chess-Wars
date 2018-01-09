@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
 
     Button bPlay;
     Button bProfile;
+    Button bHistory;
     Intent intent;
     Context context = this;
 
@@ -62,7 +63,7 @@ public class MainActivity extends Activity {
             }
         }
 
-bPlay = (Button) findViewById(R.id.bPlay);
+        bPlay = (Button) findViewById(R.id.bPlay);
 
         bPlay.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -83,7 +84,20 @@ bPlay = (Button) findViewById(R.id.bPlay);
             }
         });
 
-        
+
+        bHistory = (Button) findViewById(R.id.bHistorico);
+
+        bHistory.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                intent = new Intent(context, HistoryActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+
     }
 
 

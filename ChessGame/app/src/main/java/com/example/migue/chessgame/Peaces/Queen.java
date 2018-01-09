@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 
 public class Queen extends Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
     int value = 9;
 
     public Queen(boolean isWhite, int l, int n) {
@@ -91,6 +93,11 @@ public class Queen extends Peace implements Serializable {
 
     public int getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "Queen";
     }
 
     public String getType(){return "Queen";}

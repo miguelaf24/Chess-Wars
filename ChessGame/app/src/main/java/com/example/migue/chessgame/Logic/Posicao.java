@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 
 public class Posicao implements Serializable {
+    static final long serialVersionUID = 42L;
+
     int x;
     int y;
 

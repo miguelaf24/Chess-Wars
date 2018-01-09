@@ -11,6 +11,8 @@ import java.io.Serializable;
  */
 
 public class Pawn extends Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
     boolean firstPlay;
     int jf;
     int value = 1;
@@ -62,6 +64,12 @@ public class Pawn extends Peace implements Serializable {
             return true;
         return false;
     };
+
+
+    @Override
+    public String toString() {
+        return "Pawn";
+    }
     public int getValue() {
         return value;
     }

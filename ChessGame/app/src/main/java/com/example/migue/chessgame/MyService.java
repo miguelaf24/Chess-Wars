@@ -12,7 +12,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -29,7 +28,7 @@ import static com.example.migue.chessgame.GameActivity.getLocalIpAddress;
 import static java.lang.Integer.parseInt;
 
 public class MyService extends Service {
-    private final IBinder mBinder = new LocalBinder();
+
     int mode;
     //Service
     boolean started = false;
@@ -54,7 +53,7 @@ public class MyService extends Service {
             return 1;
         }
 
-        // TODO: 03/01/2018 Ver Para Apagar ou não 
+        // TODO: 03/01/2018 Ver Para Apagar ou não
         MyService get() {
             return MyService.this;
         }
@@ -67,17 +66,56 @@ public class MyService extends Service {
         state = -1;
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int ret = super.onStartCommand(intent, flags, startId);
+        test("onStartCommands");
 
-    void setIP(String ip)
-    {
-        client(ip, PORT);
+        if (intent != null) {
+            state = intent.getIntExtra("state", 0);
+        }
+
+        test("" + state);
+
+        if(state ==0){
+            test("State 0");
+            if(!started) {
+                start(intent);
+            }
+        }
+        else if(state == 1){
+            test("State 1");
+            String ip= intent.getStringExtra("ip");
+            client(ip, PORT);
+        }
+        else if (state==2){
+            test("State 2");
+
+            sendGame(intent.getSerializableExtra("game"));
+
+        }
+        else if (state==3) {
+            test("State 3");
+            closeall();
+
+        }
+        return START_STICKY; //START_NOT_STICKY;
+    }
+
+    private void closeall() {
+        onDestroy();
+
 
     }
-    public void start(int mode){
+
+    public void start(Intent intent){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo == null || !(networkInfo.isConnected())) {
             //TODO --> Mandar terminar GameActivity
+        }
+        if (intent != null) {
+            mode = intent.getIntExtra("mode", 2);
         }
         test("mode = " + mode);
         started=true;
@@ -90,11 +128,12 @@ public class MyService extends Service {
         }
     }
 
-    public void sendGameAct(Object var){
+    public void sendGameAct(Game var){
 
         Intent intent = new Intent();
         intent.setAction("SENDG");
-        intent.putExtra("Game", (Serializable) var);
+
+        intent.putExtra("Game", var);
         sendBroadcast(intent);
 
     }
@@ -106,18 +145,23 @@ public class MyService extends Service {
 
         intent.putExtra("flag", var);
         sendBroadcast(intent);
+
     }
 
-    public class LocalBinder extends Binder {
-        public MyService getServ(){
-            return MyService.this;
-        }
+    public void sendProf(Object var){
+        //TODO -> enviar profile e definir o tipo de objecto de var
+        Intent intent = new Intent();
+        intent.setAction("SENDG");
+
+        // intent.putExtra("prof", var);
+        sendBroadcast(intent);
+
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         test("onBind");
-        return mBinder;
+        return new MyBinder();
     }
 
     @Override
@@ -142,15 +186,16 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        test("onDestroy inicio");
 
         run=false;
-        if (commThread.isAlive())
-            try {
-                commThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        test("onDestroy");
+        if (commThread.isAlive()) {
+            commThread.interrupt();
+            socketGame=null;
+            serverSocket=null;
+            //commThread.join();
+        }
+        test("onDestroy fim");
     }
 
     public void test(String str){
@@ -158,12 +203,12 @@ public class MyService extends Service {
     }
 
 
-    public void sendGame(final Game gameS){
+    public void sendGame(final Object gameS){
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d("Coms", "Sending game "+gameS.GameOver());
+                    Log.d("Coms", "Sending game");
                     output.writeObject(gameS);
                     output.flush();
                 } catch (Exception e) {
@@ -234,9 +279,7 @@ public class MyService extends Service {
                 input = new ObjectInputStream(socketGame.getInputStream());
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    Game temp = (Game) input.readObject();
-                    Log.e("COMS","teste ao game over "+ temp.GameOver());
-                    sendGameAct(temp);
+                    sendGameAct((Game) input.readObject());
                     Log.d("Coms", "Received: game");
                 }
             } catch (final Exception e) {

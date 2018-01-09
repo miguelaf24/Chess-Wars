@@ -9,6 +9,9 @@ import java.io.Serializable;
  */
 
 public abstract class Peace implements Serializable {
+    static final long serialVersionUID = 42L;
+
+
     boolean isWhite;
     int sl, sn;
 
@@ -19,6 +22,7 @@ public abstract class Peace implements Serializable {
     public Peace(boolean isWhite, int l, int n) {
         this.isWhite = isWhite; sl=l; sn=n;
     }
+
 
     public abstract boolean action(Table table, int l, int n);
 

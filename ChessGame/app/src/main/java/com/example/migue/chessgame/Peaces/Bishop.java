@@ -9,12 +9,19 @@ import java.io.Serializable;
  */
 
 public class Bishop extends Peace  implements Serializable {
+    static final long serialVersionUID = 42L;
+
     public Bishop(boolean isWhite, int l, int n) {
         super(isWhite,l,n);
     }
 
     int value=3;
 
+
+    @Override
+    public String toString() {
+        return "Bishop";
+    }
     @Override
     public boolean action(Table table ,int l, int n) {
         int auxl, auxn;

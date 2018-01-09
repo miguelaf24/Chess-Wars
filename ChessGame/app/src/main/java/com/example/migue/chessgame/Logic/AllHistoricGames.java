@@ -8,6 +8,7 @@ import java.util.ArrayList;
  */
 
 public class AllHistoricGames implements Serializable {
+    static final long serialVersionUID = 42L;
     private ArrayList<GameHistoric> Jogos;
 
     public ArrayList<GameHistoric> getJogos() {
@@ -18,7 +19,13 @@ public class AllHistoricGames implements Serializable {
         Jogos = jogos;
     }
 
+    public void AddJogo(GameHistoric e){
+        getJogos().add(e);
+    }
+
     public AllHistoricGames(ArrayList<GameHistoric> jogos) {
         Jogos = jogos;
     }
+
+    public AllHistoricGames(){Jogos= new ArrayList<GameHistoric>();}
 }

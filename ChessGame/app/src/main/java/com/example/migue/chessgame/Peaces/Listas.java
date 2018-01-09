@@ -9,6 +9,8 @@ import java.util.List;
  */
 
 public class Listas implements Serializable{
+    static final long serialVersionUID = 42L;
+
 
     public ArrayList<Peace> white;
     public ArrayList<Peace> black;
