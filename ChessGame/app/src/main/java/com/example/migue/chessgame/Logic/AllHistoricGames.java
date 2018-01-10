@@ -15,6 +15,27 @@ public class AllHistoricGames implements Serializable {
         return Jogos;
     }
 
+    public int getJogosGanhos(){
+        int aux = 0;
+        for(int i = 0 ; i < Jogos.size() ; i++){
+            if(Jogos.get(i).isWin())aux++;
+        }
+        return  aux;
+    }
+    public int getJogosPerdidos(){
+        int aux = 0;
+        for(int i = 0 ; i < Jogos.size() ; i++){
+            if(!Jogos.get(i).isWin())aux++;
+        }
+        return  aux;
+    }
+    public int getJogosMultiPlayer(){
+        int aux = 0;
+        for(int i = 0 ; i < Jogos.size() ; i++){
+            if(Jogos.get(i).getPlayer2().compareTo("CPU")!=0)aux++;
+        }
+        return  aux;
+    }
     public void setJogos(ArrayList<GameHistoric> jogos) {
         Jogos = jogos;
     }

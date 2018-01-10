@@ -33,36 +33,32 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        GlobalProfile globalProfile= (GlobalProfile) getApplicationContext();
+        if (globalProfile.readProfileFromSharedPreferences().getName() == null) {
+            Log.e(">>>>>>>>>>>", "NO profile name dude");
+            Toast.makeText(this,"Please create a profile.", Toast.LENGTH_SHORT).show();
+
+            int timeout = 1000; // make the activity visible for 4 seconds
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+
+                    finish();
+                    Intent homepage = new Intent(MainActivity.this, ProfileActivity.class);
+
+                    startActivity(homepage);
+                }
+            }, timeout);
+        }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             requestPermissions(new String[]{
                             Manifest.permission.CAMERA,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     2501);
-            GlobalProfile globalProfile= (GlobalProfile) getApplicationContext();
-            if (globalProfile.readProfileFromSharedPreferences().getName() == null) {
-                Log.e(">>>>>>>>>>>", "NO profile name dude");
-                Toast.makeText(this,"Please create a profile.", Toast.LENGTH_SHORT).show();
-
-                int timeout = 1000; // make the activity visible for 4 seconds
-
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-
-                        finish();
-                        Intent homepage = new Intent(MainActivity.this, ProfileActivity.class);
-
-                        startActivity(homepage);
-                    }
-                }, timeout);
-
-
-
-
-            }
         }
 
         bPlay = (Button) findViewById(R.id.bPlay);

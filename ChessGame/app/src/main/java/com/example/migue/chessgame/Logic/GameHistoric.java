@@ -19,6 +19,7 @@ public class GameHistoric implements Serializable{
     private boolean win;
     private String Player1;
     private String Player2;
+    private boolean multiplayer;
     private Date data;
 
     public String getPlayer1() {

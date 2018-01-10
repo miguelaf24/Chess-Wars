@@ -382,7 +382,17 @@ public class GameActivity extends Activity {
                             min1 -= 1;
                         }
                         if(min1<0){
-                            // TODO: 04/01/2018 Black Win
+                            if(mode<2)
+                                fimJogo(false);
+                            else{
+                                if(mode==TYPEGAMEMC)
+                                    if(game.isWhiteTurn())fimJogo(false);
+                                    else fimJogo(true);
+                                else
+                                if(mode==TYPEGAMEMS)
+                                    if(game.isWhiteTurn())fimJogo(true);
+                                    else fimJogo(false);
+                            }
                             time=-1;
                         }
                         runOnUiThread(new Runnable() {
@@ -400,7 +410,17 @@ public class GameActivity extends Activity {
                             min2 -= 1;
                         }
                         if(min1<0){
-                            // TODO: 04/01/2018 White Win
+                            if(mode<2)
+                                fimJogo(false);
+                            else{
+                                if(mode==TYPEGAMEMC)
+                                    if(game.isWhiteTurn())fimJogo(false);
+                                    else fimJogo(true);
+                                else
+                                if(mode==TYPEGAMEMS)
+                                    if(game.isWhiteTurn())fimJogo(true);
+                                    else fimJogo(false);
+                            }
                             time=-1;
                         }
                         runOnUiThread(new Runnable() {
@@ -508,7 +528,8 @@ public class GameActivity extends Activity {
             gameover.putExtra("mode", true);
         }
         gameover.putExtra("ImWinner",win);
-        send(3, "close"); //mensagem ao servico para encerrar
+        if(mode>1)
+            send(3, "close"); //mensagem ao servico para encerrar
         finish();
         startActivity(gameover);
 

@@ -81,8 +81,17 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
+
             <TextView
                 android:id="@+id/jogados"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="0"
+                android:textSize="@dimen/textSize1" />
+
+            <TextView
+                android:id="@+id/multiplayer"
                 android:text="0"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
@@ -90,6 +99,7 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/jogadosganhos"
                 android:text="0"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
@@ -97,13 +107,7 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:text="0"
-                android:textSize="@dimen/textSize1"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
+                android:id="@+id/jogadosperdidos"
                 android:text="0"
                 android:textSize="@dimen/textSize1"
                 android:layout_width="match_parent"
