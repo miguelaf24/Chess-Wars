@@ -53,13 +53,14 @@ public class MainActivity extends Activity {
                 }
             }, timeout);
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            requestPermissions(new String[]{
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE},
-                    2501);
-        }
+        else
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                requestPermissions(new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE},
+                        2501);
+            }
 
         bPlay = (Button) findViewById(R.id.bPlay);
 
