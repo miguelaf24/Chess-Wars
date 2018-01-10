@@ -372,7 +372,8 @@ public class GameActivity extends Activity {
     Thread tTime = new Thread(new Runnable() {
         @Override
         public void run() {
-
+            min1=time;
+            min2=time;
             while (time>0) {
                 try {
                     Thread.sleep(1000);
@@ -410,7 +411,7 @@ public class GameActivity extends Activity {
                             sec2 = 59;
                             min2 -= 1;
                         }
-                        if(min1<0){
+                        if(min2<0){
                             if(mode<2)
                                 fimJogo(false);
                             else{
@@ -556,8 +557,10 @@ public class GameActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
-                if(game.getTime()>0&&!tTime.isAlive())
+                if(game.getTime()>0&&!tTime.isAlive()){
+                    time = game.getTime();
                     tTime.start();
+                }
                 if(game.getGameOver()){
                     saveGameNet(false);
                     fimJogo(false);
