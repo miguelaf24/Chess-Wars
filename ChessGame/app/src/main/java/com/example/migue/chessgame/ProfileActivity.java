@@ -43,6 +43,7 @@ public class ProfileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{
                             Manifest.permission.CAMERA,
@@ -50,7 +51,7 @@ public class ProfileActivity extends Activity {
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     2501);
         }
-
+        */
         File file = new File(Environment.getExternalStorageDirectory(), "history.dat");
         if(file.exists()) { //seFicheiroJaExistir
             try {
