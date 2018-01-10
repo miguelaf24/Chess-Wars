@@ -62,6 +62,7 @@ import static android.R.attr.id;
 public class GameActivity extends Activity {
 
     //Modos de Jogo
+    boolean jogoRecebido=false;
     int mode = 0;   //iniciação do modo de jogo
     public static final int TYPEGAMES = 0;  //SinglePlayer
     public static final int TYPEGAMEML = 1; //MultiPlayer One Phone
@@ -482,7 +483,6 @@ public class GameActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         send(1, edtIP.getText().toString());
-                        tTime.start();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -556,6 +556,8 @@ public class GameActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("SENDG")){
                 game = (Game) intent.getSerializableExtra("Game");
+                if(game.getTime()>0&&!tTime.isAlive())
+                    tTime.start();
                 if(game.getGameOver()){
                     saveGameNet(false);
                     fimJogo(false);
