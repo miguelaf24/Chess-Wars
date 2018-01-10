@@ -34,5 +34,9 @@
 <string name="winthegame"> e tu ganhaste o jogo</string>
 <string name="loserthegame"> e tu perdeste o jogo</string>
     <string name="connectrefusedialog">Ligação perdida, escolha um modo para continuar.</string>
+    <string name="timeDialog">Insira o tempo do relógio:(0 para ignorar)></string>
+
+    <string name="confirmar">Confirmar</string>
+    <string name="timemode">Modo de Tempo</string>
 
 </resources>

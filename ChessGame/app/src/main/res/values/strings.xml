@@ -34,4 +34,8 @@
     <string name="winthegame"> and you win the game</string>
     <string name="loserthegame"> and you lose the game</string>
     <string name="connectrefusedialog">Connection closed, wich mode to continue?</string>
+    <string name="timeDialog">Insert time to play:(0 to ignore)></string>
+
+    <string name="confirmar">Confirm</string>
+    <string name="timemode">Time mode</string>
 </resources>
