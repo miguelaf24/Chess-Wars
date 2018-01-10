@@ -372,8 +372,6 @@ public class GameActivity extends Activity {
     Thread tTime = new Thread(new Runnable() {
         @Override
         public void run() {
-            min1=time;
-            min2=time;
             while (time>0) {
                 try {
                     Thread.sleep(1000);
@@ -559,6 +557,8 @@ public class GameActivity extends Activity {
                 game = (Game) intent.getSerializableExtra("Game");
                 if(game.getTime()>0&&!tTime.isAlive()){
                     time = game.getTime();
+                    min1=time;
+                    min2=time;
                     tTime.start();
                 }
                 if(game.getGameOver()){
