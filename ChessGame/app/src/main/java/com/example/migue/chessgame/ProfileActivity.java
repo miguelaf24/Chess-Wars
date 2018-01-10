@@ -51,7 +51,7 @@ public class ProfileActivity extends Activity {
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     2501);
         }
-        */
+*/
         File file = new File(Environment.getExternalStorageDirectory(), "history.dat");
         if(file.exists()) { //seFicheiroJaExistir
             try {
