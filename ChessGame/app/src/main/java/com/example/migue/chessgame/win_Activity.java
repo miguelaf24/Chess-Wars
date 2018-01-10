@@ -32,9 +32,9 @@ public class win_Activity extends Activity {
 
         } else{//blackWins
             if(winner)
-                img.setImageResource(R.drawable.blackwinswhite);
-            else
                 img.setImageResource(R.drawable.blackwinsblack);
+            else
+                img.setImageResource(R.drawable.blackwinswhite);
 
         }
 

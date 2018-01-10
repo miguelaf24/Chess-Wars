@@ -575,6 +575,7 @@ public class GameActivity extends Activity {
                     finish();
                 }else {
                     pd.dismiss();
+                    sendGame();
                     tTime.start();
                 }
             }
