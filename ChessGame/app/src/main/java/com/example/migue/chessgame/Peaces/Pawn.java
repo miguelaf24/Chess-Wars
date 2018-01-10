@@ -81,6 +81,8 @@ public class Pawn extends Peace implements Serializable {
     public boolean isFirstPlay(){return firstPlay;}
     public void setFirstMove(){firstPlay=true;}
     public String getType(){return "Pawn";}
-    public void setJogadaFirst(int a){jf = a;}
+    public void setJogadaFirst(int a){
+        firstPlay=false;
+        jf = a;}
     public int getJogadaFirst(){return jf;}
 }

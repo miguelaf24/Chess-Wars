@@ -137,6 +137,15 @@ public class MyService extends Service {
 
     }
 
+    public void sendConnectionCloseMsg(){
+        Intent intent = new Intent();
+        intent.setAction("ConClose");
+
+        intent.putExtra("ConnectionClose", "close");
+        sendBroadcast(intent);
+
+    }
+
     public void flag(int var){
 
         Intent intent = new Intent();
@@ -188,16 +197,11 @@ public class MyService extends Service {
         test("onDestroy inicio");
 
         run=false;
-        if (commThread.isAlive()) {
-            commThread.interrupt();
-            try {
-                socketGame.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            serverSocket=null;
+
+        
+        serverSocket=null;
             //commThread.join();
-        }
+
         test("onDestroy fim");
     }
 
@@ -266,20 +270,23 @@ public class MyService extends Service {
                 } catch (Exception e) {
                     socketGame = null;
                 }
-                if (socketGame == null) {
-                   /* procMsg.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //finish();
-                        }
-                    });*/
+
+                if (socketGame == null || !socketGame.isConnected()) {
+                    Log.d("coms","Unreached Socket");
+                    flag(2);
+
+                    closeall();
                     return;
                 }
-                commThread.start();
+
+                 commThread.start();
             }
         });
         t.start();
+
+
     }
+
 
     Thread commThread = new Thread(new Runnable() {
         @Override
@@ -291,15 +298,17 @@ public class MyService extends Service {
                 input = new ObjectInputStream(socketGame.getInputStream());
 
 
-                while (!Thread.currentThread().isInterrupted()) {
+                while (run) {
                         sendGameAct((Game) input.readObject());
                         Log.d("Coms", "Received: game");
                 }
             } catch (final Exception e) {
                 Log.d("Coms", "Socket closed");
+                sendConnectionCloseMsg();
                 closeall();
-                //TODO acabar, chamar função para enviar mensagem ao game para continuar em multiplayer local
+                Thread.currentThread().interrupt();
             }
+            Thread.currentThread().interrupt();
         }
     });
 

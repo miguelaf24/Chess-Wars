@@ -33,4 +33,6 @@
 <string name="NoGames">Sem jogos guardados!</string>
 <string name="winthegame"> e tu ganhaste o jogo</string>
 <string name="loserthegame"> e tu perdeste o jogo</string>
+    <string name="connectrefusedialog">Ligação perdida, escolha um modo para continuar.</string>
+
 </resources>

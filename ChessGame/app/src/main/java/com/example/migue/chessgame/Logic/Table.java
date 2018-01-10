@@ -113,7 +113,7 @@ public class Table implements Serializable{
     public Peace getPeace(int i, int j){
         if((i>=0&&i<=7) && (j>=0&&j<=7))
             return coord[i][j];
-        return null;
+        return new Empty(false);
     }
 
     public void addList(Peace p){
@@ -135,6 +135,22 @@ public class Table implements Serializable{
         else
             lista.getBlack(l,n).setCoord(i,j);
 }
+
+    public void setPeaceIA(int l, int n, int i, int j){
+        if (l==-1){ //se o metodo for chamado para preencher uma casa com vazia, recebe -1 -1 e casa a preenche
+            coord[i][j]=new Empty(false);
+            return;
+        }
+        Peace c=getPeace(l,n);
+        coord[i][j] =c; //actualiza as coordenadas da tabela
+        c.setCoord(i,j); //actualiza info da peça
+
+        //actualiza as listas de peças existentes
+        if(c.isWhite())
+            lista.getWhite(l,n).setCoord(i,j);
+        else
+            lista.getBlack(l,n).setCoord(i,j);
+    }
 
     public void setThisPeace(Peace p, int l, int n) {
         coord[l][n] = p; //actualiza as coordenadas da tabela

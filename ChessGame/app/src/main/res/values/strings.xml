@@ -33,4 +33,5 @@
     <string name="NoGames">No games data stored!</string>
     <string name="winthegame"> and you win the game</string>
     <string name="loserthegame"> and you lose the game</string>
+    <string name="connectrefusedialog">Connection closed, wich mode to continue?</string>
 </resources>

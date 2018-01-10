@@ -10,7 +10,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
@@ -34,6 +38,7 @@ import android.widget.Toast;
 import com.example.migue.chessgame.Logic.AllHistoricGames;
 import com.example.migue.chessgame.Logic.Game;
 import com.example.migue.chessgame.Logic.GameHistoric;
+import com.example.migue.chessgame.Logic.GlobalProfile;
 import com.example.migue.chessgame.Peaces.*;
 
 import java.io.File;
@@ -67,11 +72,11 @@ public class GameActivity extends Activity {
     public static final int RECIVE_PROFILE = 1;
     public static final int RECIVE_DIALOG_CLIENT =2;
     public static final int RECIVE_DIALOG_SERVER =3;
-
+    GlobalProfile globalProfile;
     ProgressDialog pd = null;
     boolean mBound = false;
     MyReciver myReceiver;
-    public Game game;
+    public Game game=null;
     int sl;
     int sn;
     int time,sec1,min1,sec2,min2;
@@ -90,9 +95,13 @@ public class GameActivity extends Activity {
 
         edtTimeP1 = (TextView) findViewById(R.id.timep1);
         edtTimeP2 = (TextView) findViewById(R.id.timep2);
+        ImageView player1img = (ImageView) findViewById(R.id.imgp1);
+        ImageView player1img2 = (ImageView) findViewById(R.id.imgp2);
+        globalProfile = (GlobalProfile) getApplicationContext();
+
+
 
         if(savedInstanceState == null) {//se não tem nada guardado!
-            //Verifica o modo de jogo enviado
 
             Intent intent = getIntent();
 
@@ -118,8 +127,11 @@ public class GameActivity extends Activity {
                 }
             }
 
+                if (mode == TYPEGAMEMS) {
+                    server();
+                } else if (mode == TYPEGAMEMC)
+                    clientDlg();
 
-            // TODO: 02/01/2018 Ver Bind Service e chamar por funções -.-' bindService(MyService, 0);
         }
         else{
             game = (Game) savedInstanceState.getSerializable("SavedGame");
@@ -135,6 +147,25 @@ public class GameActivity extends Activity {
                 tTime.start();
             }
         }
+        if(mode==TYPEGAMEMC) {
+            TextView player2 = (TextView) findViewById(R.id.p2);
+            player2.setText(globalProfile.getProfile().getName());
+            if (globalProfile.getProfile().getPhoto() != null) {
+
+                Bitmap bmp = BitmapFactory.decodeByteArray(globalProfile.getProfile().getPhoto(), 0, globalProfile.getProfile().getPhoto().length);
+                BitmapDrawable image = new BitmapDrawable(player1img2.getResources(), bmp);
+                player1img2.setBackground(image);
+            }
+        }else {
+            TextView player1 = (TextView) findViewById(R.id.p1);
+            player1.setText(globalProfile.getProfile().getName());
+            if (globalProfile.getProfile().getPhoto() != null) {
+                Bitmap bmp = BitmapFactory.decodeByteArray(globalProfile.getProfile().getPhoto(), 0, globalProfile.getProfile().getPhoto().length);
+                BitmapDrawable image = new BitmapDrawable(player1img.getResources(), bmp);
+                player1img.setBackground(image);
+            }
+        }
+
         tabSize();
         buttons();
 
@@ -152,6 +183,7 @@ public class GameActivity extends Activity {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("SENDG");
             intentFilter.addAction("ServConnection");
+            intentFilter.addAction("ConClose");
             registerReceiver(myReceiver, intentFilter);
         }
 
@@ -161,11 +193,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(mode==TYPEGAMEMS){
-            server();
-        }
-        else if(mode==TYPEGAMEMC)
-            clientDlg();
+
     }
 
 
@@ -333,7 +361,7 @@ public class GameActivity extends Activity {
             @Override
             public void onCancel(DialogInterface dialog) {
 
-                //unbindService(sc);
+                finish();
             }
         });
         pd.show();
@@ -440,7 +468,7 @@ public class GameActivity extends Activity {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        //finish();
+                        finish();
                     }
                 }).create();
         selection.show();
@@ -522,12 +550,47 @@ public class GameActivity extends Activity {
             }
             if(intent.getAction().equals("ServConnection")) {
                 int i = (int) intent.getSerializableExtra("flag");
-
-                pd.dismiss();
-                tTime.start();
+                if (i==2){
+                    finish();
+                }else {
+                    pd.dismiss();
+                    tTime.start();
+                }
             }
 
+            if(intent.getAction().equals("ConClose")) {
+                DialogTypeChoose();
+
+            }
         }
+    }
+
+    void DialogTypeChoose(){
+
+        AlertDialog selection = new AlertDialog.Builder(this).setTitle(R.string.AlertDialogTitleS)
+                .setMessage(R.string.connectrefusedialog)
+
+                .setPositiveButton("Single Player", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                       mode= 0;
+                    }
+                })
+                .setNegativeButton("Multi Player in this device", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mode= 1;
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        finish();
+                    }
+                }).create();
+        selection.show();
+
     }
 
     void refreshTable(){
@@ -619,9 +682,12 @@ public class GameActivity extends Activity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        if(mode>1)
+        try {
             unregisterReceiver(myReceiver);
+        }catch (IllegalArgumentException e){
+            Log.d(">>>","unregistered receiver");
 
+        }
     }
 
     private void  saveGameNet(boolean b){
